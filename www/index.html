@@ -1,0 +1,4378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Mind Real Estate — Train Your Mental Habits</title>
+
+<!-- SEO / App description -->
+<meta name="description" content="Mind Real Estate is a meditative habit visualizer. Choose mindful thoughts, watch negative habits stack up, and clear them with positive ones to reach flow state." />
+<meta name="keywords" content="mindfulness, habits, mental health, meditation, focus, productivity, wellness" />
+<meta name="author" content="Mind Real Estate" />
+<meta name="theme-color" content="#000000" />
+<meta name="color-scheme" content="dark" />
+
+<!-- iOS PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Mind Real Estate" />
+<meta name="format-detection" content="telephone=no" />
+
+<!-- Android PWA -->
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="application-name" content="Mind Real Estate" />
+
+<!-- Open Graph (social previews) -->
+<meta property="og:title" content="Mind Real Estate" />
+<meta property="og:description" content="A meditative habit visualizer. Train your mind." />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="icon-512.png" />
+
+<!-- PWA manifest -->
+<link rel="manifest" href="manifest.json" />
+
+<!-- Icons -->
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+<link rel="apple-touch-icon" href="icon-180.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png" />
+
+<!-- iOS splash screens (Apple wants per-device sizes; one fallback shown here) -->
+<link rel="apple-touch-startup-image" href="splash-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" />
+<link rel="apple-touch-startup-image" href="splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" />
+<link rel="apple-touch-startup-image" href="splash-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" />
+
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;background:#000;color:#fff;overflow:hidden;
+    font-family:ui-monospace,Menlo,Monaco,monospace;-webkit-user-select:none;user-select:none;
+    -webkit-tap-highlight-color:transparent;touch-action:none;overscroll-behavior:none}
+  canvas{display:block;position:absolute;inset:0}
+
+  .hud{position:fixed;left:0;right:0;padding:14px 16px;display:flex;
+    justify-content:space-between;font-size:9px;letter-spacing:.28em;
+    color:rgba(255,255,255,.55);text-transform:uppercase;pointer-events:none;z-index:10}
+  #hudTop{top:0}
+  #hudBot{bottom:auto;top:auto;left:0;right:0;flex-direction:column;gap:5px;
+    padding:6px 18px}
+  /* Position will be set inline via JS based on brain bottom position */
+  #bar{width:100%;height:1px;background:rgba(255,255,255,.1);overflow:hidden}
+  #fill{height:100%;width:0%;background:linear-gradient(90deg,#4FC3F7,#B3E5FC);
+    transition:width .5s ease;box-shadow:0 0 10px #4FC3F7}
+  #row{display:flex;justify-content:space-between}
+
+  /* MENU BTN */
+  #menuBtn{position:fixed;top:38px;right:14px;z-index:50;
+    background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.4);
+    color:#fff;font-family:inherit;font-size:9px;
+    letter-spacing:.35em;padding:9px 13px;text-transform:uppercase;
+    cursor:pointer;transition:all .2s ease;display:none;
+    touch-action:manipulation;pointer-events:auto}
+  #menuBtn.show{display:block}
+  #menuBtn:active,#menuBtn:hover{background:rgba(255,255,255,.15);border-color:#fff}
+
+  /* STREAK POPUP - shows on chained positive hits */
+  #streakPopup{position:fixed;top:18%;left:50%;transform:translateX(-50%) scale(.6);
+    font-family:inherit;font-size:14px;font-weight:500;letter-spacing:.45em;
+    color:#fff;text-shadow:0 0 14px rgba(79,195,247,.9),0 0 24px rgba(79,195,247,.5);
+    pointer-events:none;z-index:40;opacity:0;
+    transition:opacity .15s ease,transform .25s cubic-bezier(.34,1.56,.64,1);
+    text-transform:uppercase;white-space:nowrap}
+  #streakPopup.pop{opacity:1;transform:translateX(-50%) scale(1)}
+
+  /* MENU POPUP */
+  #menuPopup{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:60;
+    display:none;align-items:center;justify-content:center;flex-direction:column;
+    gap:14px;padding:24px;touch-action:manipulation;pointer-events:auto}
+  #menuPopup.show{display:flex}
+  #menuPopup h2{font-size:11px;letter-spacing:.45em;font-weight:400;
+    color:rgba(255,255,255,.6);text-transform:uppercase;margin-bottom:12px}
+  .menuOpt{background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;
+    font-family:inherit;font-size:12px;letter-spacing:.32em;padding:18px 24px;
+    text-transform:uppercase;cursor:pointer;min-width:260px;text-align:left;
+    transition:all .2s ease;touch-action:manipulation;pointer-events:auto}
+  .menuOpt:active,.menuOpt:hover{background:rgba(255,255,255,.10);border-color:#fff}
+  .menuOpt small{display:block;margin-top:5px;font-size:8px;letter-spacing:.3em;
+    color:rgba(255,255,255,.5)}
+  #menuClose{margin-top:14px;font-size:10px;letter-spacing:.4em;
+    color:rgba(255,255,255,.55);background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.2);
+    font-family:inherit;text-transform:uppercase;cursor:pointer;padding:10px 20px;
+    touch-action:manipulation;pointer-events:auto}
+
+  /* SCREEN OVERLAYS (boot + intro) */
+  .screen-overlay,#intro,#bootScreen{position:fixed;inset:0;background:#000;z-index:30;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:24px;gap:12px;transition:opacity .5s ease;overflow-y:auto}
+  .screen-overlay.gone,#intro.gone,#bootScreen.gone{opacity:0;pointer-events:none}
+  #intro h1,#bootScreen h1{font-size:14px;letter-spacing:.5em;font-weight:400;text-align:center;
+    margin-bottom:4px;text-shadow:0 0 10px rgba(255,255,255,.15)}
+  .subtitle,#intro p,#bootScreen p{font-size:9px;letter-spacing:.35em;color:rgba(255,255,255,.45);
+    text-transform:uppercase;margin-bottom:16px;text-align:center}
+
+  /* GALLERY WALL — grid of mind-map frames */
+  .gallery-wall{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;
+    width:100%;max-width:760px;padding:6px;margin-bottom:8px}
+  @media(min-width:680px){.gallery-wall{grid-template-columns:repeat(3,1fr)}}
+
+  .gallery-frame{background:rgba(10,10,10,.85);border:1px solid rgba(255,255,255,.18);
+    aspect-ratio:4/3;padding:14px;display:flex;flex-direction:column;
+    justify-content:space-between;cursor:pointer;color:#fff;
+    transition:all .3s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden;
+    font-family:inherit;text-align:left;
+    opacity:0;transform:translateY(20px);animation:pop .5s ease forwards}
+  .gallery-frame:active,.gallery-frame:hover{border-color:#4FC3F7;
+    box-shadow:0 0 18px rgba(79,195,247,.25);transform:translateY(-2px)}
+  .gallery-frame.cleared{border-color:rgba(79,195,247,.55);
+    box-shadow:0 0 14px rgba(79,195,247,.15) inset}
+  .gallery-frame.cleared::after{content:'◆ SYNCED';position:absolute;top:10px;right:12px;
+    color:#4FC3F7;font-size:7px;letter-spacing:.25em;
+    text-shadow:0 0 8px rgba(79,195,247,.7)}
+  .frame-title{font-size:9px;letter-spacing:.25em;font-weight:600;
+    text-transform:uppercase;margin-bottom:6px;color:#fff}
+  .frame-desc{font-size:8px;color:rgba(255,255,255,.45);line-height:1.5;
+    letter-spacing:.05em;text-transform:none}
+  .frame-status{font-size:7px;letter-spacing:.2em;color:#4FC3F7;
+    text-transform:uppercase;margin-top:auto;padding-top:8px;opacity:.8}
+
+  /* Boot title button (special standalone) */
+  #initSyncBtn{aspect-ratio:auto;padding:18px 32px;max-width:280px;width:100%;
+    text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center;
+    border-color:rgba(255,255,255,.35)}
+  #initSyncBtn .frame-title{text-align:center;width:100%;font-size:10px;
+    text-shadow:0 0 6px rgba(255,255,255,.5)}
+  #initSyncBtn .frame-status{text-align:center;width:100%;margin-top:0;padding-top:0}
+
+  .gallery-frame:nth-child(1){animation-delay:.05s}
+  .gallery-frame:nth-child(2){animation-delay:.12s}
+  .gallery-frame:nth-child(3){animation-delay:.19s}
+  .gallery-frame:nth-child(4){animation-delay:.26s}
+  .gallery-frame:nth-child(5){animation-delay:.33s}
+  @keyframes pop{to{opacity:1;transform:translateY(0)}}
+
+  /* GAME OVER */
+  #over{position:fixed;inset:0;background:#000;z-index:40;
+    display:none;align-items:center;justify-content:center;flex-direction:column;
+    padding:24px;text-align:center}
+  #over.show{display:flex}
+  #saying{font-size:18px;letter-spacing:.45em;font-weight:500;
+    text-transform:uppercase;line-height:1.4;
+    animation:flicker 1s ease}
+  #subSaying{margin-top:18px;font-size:9px;letter-spacing:.4em;
+    color:rgba(255,255,255,.4);text-transform:uppercase}
+  @keyframes flicker{
+    0%{opacity:0;transform:scale(.9)}
+    20%{opacity:1}
+    60%{opacity:.6}
+    100%{opacity:1;transform:scale(1)}
+  }
+
+  /* scroll hint */
+  #scrollHint{position:fixed;top:50%;right:8px;writing-mode:vertical-rl;
+    font-size:8px;letter-spacing:.4em;color:rgba(255,255,255,.3);
+    text-transform:uppercase;pointer-events:none;z-index:10;
+    animation:pulse 2.4s ease-in-out infinite;transform:translateY(-50%)}
+  @keyframes pulse{0%,100%{opacity:.15}50%{opacity:.55}}
+</style>
+</head>
+<body>
+
+<canvas id="g"></canvas>
+
+<div class="hud" id="hudTop"><span id="cat">·</span><span id="ph">·</span></div>
+<button id="menuBtn" aria-label="menu">MENU</button>
+<div id="streakPopup"></div>
+
+<div id="menuPopup">
+  <h2>menu</h2>
+  <button class="menuOpt" id="goHomeBtn">Go Home<small>back to category screen</small></button>
+  <button class="menuOpt" id="restartBtn">Restart<small>empty the brain · keep category</small></button>
+  <button id="menuClose">close</button>
+</div>
+<div class="hud" id="hudBot">
+  <div id="row"><span>flow state</span><span id="pct">0%</span></div>
+  <div id="bar"><div id="fill"></div></div>
+</div>
+<div id="scrollHint">scroll</div>
+
+<div id="bootScreen" class="screen-overlay">
+  <h1>MIND REAL ESTATE</h1>
+  <p class="subtitle">Cognitive Restructuring Interface</p>
+  <button class="gallery-frame" id="initSyncBtn">
+    <span class="frame-title">BOOT SYSTEM CORE</span>
+    <span class="frame-status">// PRESS TO ENTER</span>
+  </button>
+</div>
+
+<div id="intro" class="screen-overlay gone">
+  <h1>COGNITIVE HQ CORE</h1>
+  <p class="subtitle">Select active memory architecture frame to restore focus balance</p>
+  <div class="gallery-wall" id="galleryWallGrid">
+    <button class="gallery-frame" data-cat="quantum">
+      <div><div class="frame-title">01 // QUANTUM LEAP</div><div class="frame-desc">Break out of linear progress and structural loops.</div></div>
+      <div class="frame-status">// ACCESS READY</div>
+    </button>
+    <button class="gallery-frame" data-cat="self">
+      <div><div class="frame-title">02 // SELF-EMPLOYMENT</div><div class="frame-desc">Scale the solo operator. Clear the feast-or-famine loop.</div></div>
+      <div class="frame-status">// ACCESS READY</div>
+    </button>
+    <button class="gallery-frame" data-cat="parenting">
+      <div><div class="frame-title">03 // PARENTING</div><div class="frame-desc">The home is a mirror. Clean environmental triggers.</div></div>
+      <div class="frame-status">// ACCESS READY</div>
+    </button>
+    <button class="gallery-frame" data-cat="engineer">
+      <div><div class="frame-title">04 // ENGINEERING</div><div class="frame-desc">System architecture &amp; technical debt purge.</div></div>
+      <div class="frame-status">// ACCESS READY</div>
+    </button>
+    <button class="gallery-frame" data-cat="senior">
+      <div><div class="frame-title">05 // RETIREMENT</div><div class="frame-desc">The apex era. Identity and structural decay.</div></div>
+      <div class="frame-status">// ACCESS READY</div>
+    </button>
+  </div>
+</div>
+
+<div id="over">
+  <div id="saying">LET'S GET TO WORK</div>
+  <div id="subSaying">tap to begin again</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<script>
+"use strict";
+const{Engine,Bodies,Body,Composite,Events}=Matter;
+const cv=document.getElementById('g');
+const cx=cv.getContext('2d');
+let W=0,H=0,DPR=1;
+
+// ---------- World layout (tall world, free scroll) ----------
+const L={};
+function resize(){
+  DPR=Math.min(devicePixelRatio||1,2);
+  W=innerWidth;H=innerHeight;
+  cv.width=W*DPR;cv.height=H*DPR;
+  cv.style.width=W+'px';cv.style.height=H+'px';
+  cx.setTransform(DPR,0,0,DPR,0,0);
+  L.HC=H*0.20;
+  L.HW=Math.min(W*0.94,400);
+  L.HH=Math.min(H*0.28,220);
+  L.HEXIT=L.HC+L.HH*0.42;
+  L.BY=H*0.50;
+  L.BR=Math.min(W*0.18,80);
+  L.BT=H*0.60;
+  // Brain bottom sits above the flow bar (flow bar appears just below brain)
+  L.BB=H*0.88;
+  L.BCX=W/2;
+  L.BHW=Math.min(W*0.46,260);
+  L.WH=H+10;
+  rebuildWalls();
+  if(typeof initBgNeurons==='function')initBgNeurons();
+}
+
+// ---------- Camera ----------
+const cam={y:0,vy:0};
+function maxScroll(){return Math.max(0,L.WH-H);}
+function clampCam(){if(cam.y<0)cam.y=0;const m=maxScroll();if(cam.y>m)cam.y=m;}
+
+// ---------- Physics ----------
+const eng=Engine.create();
+eng.world.gravity.y=1.0;
+eng.positionIterations=8;
+let walls=[];
+function rebuildWalls(){
+  if(walls.length){walls.forEach(w=>Composite.remove(eng.world,w));}
+  walls=[];
+  const c=L.BCX,hw=L.BHW,t=80,top=L.BT,bot=L.BB;
+  // EXTRA THICK floor positioned INSIDE the brain so items cannot penetrate
+  // Floor sits 4px above the brain bottom edge for visual containment
+  walls.push(Bodies.rectangle(c,bot-2,hw*4,t,{isStatic:true,label:'floor',
+    friction:.95,restitution:0}));
+  // Full-height side walls — placed slightly INSIDE the brain edge to contain everything
+  const wallH=bot-top+t*2+400;
+  walls.push(Bodies.rectangle(c-hw-t/2+8,(top+bot)/2,t,wallH,{isStatic:true,label:'wall',
+    friction:.8,restitution:0}));
+  walls.push(Bodies.rectangle(c+hw+t/2-8,(top+bot)/2,t,wallH,{isStatic:true,label:'wall',
+    friction:.8,restitution:0}));
+  // Diagonal corner ramps at the bottom corners so items slide to center
+  walls.push(Bodies.rectangle(c-hw+22,bot-12,40,16,{isStatic:true,label:'wall',
+    angle:-0.45,friction:.9,restitution:0}));
+  walls.push(Bodies.rectangle(c+hw-22,bot-12,40,16,{isStatic:true,label:'wall',
+    angle:0.45,friction:.9,restitution:0}));
+  // SAFETY NET — invisible floor far below the brain to catch any rogue items
+  walls.push(Bodies.rectangle(c,bot+200,W*4,40,{isStatic:true,label:'safetynet',
+    friction:.5,restitution:0}));
+  Composite.add(eng.world,walls);
+}
+
+// ---------- Word bank ----------
+// 100 words per category, using exact wording from the master blueprint.
+// Each entry: Name|emoji.  Categories are strictly isolated (no overlap).
+// Fisher-Yates shuffle is used to randomize selection.
+
+const CORE_POS=['drinking water','taking a deep breath','cleaning your space'];
+
+// Parse a compact category list "Name|emoji\nName|emoji..."
+function parseList(raw){
+  return raw.trim().split('\n').map(line=>{
+    const parts=line.split('|');
+    return{name:parts[0].trim(),emoji:(parts[1]||'').trim()};
+  });
+}
+
+// QUANTUM LEAP (100)
+const QUANTUM_RAW=`Complacency|🪨
+Overanalysis|🔨
+Procrastination|⚓
+Imposter Syndrome|🎭
+Fear of Failure|⛓️
+Skepticism|🔒
+Short-term Focus|🫣
+Distraction|💣
+Perfectionism|🏺
+Rigid Planning|🕸️
+Comparison|🪞
+Entitlement|👑
+Isolation|🧱
+Risk Aversion|🛡️
+Micromanagement|🐕
+Fear of Success|🌫️
+Lack of Belief|🙈
+Over-exertion|💥
+Impulsiveness|🎲
+Defensiveness|🔇
+Tradition-bound|🔗
+Scarcity Mindset|🕳️
+Impatience|🪓
+Over-reliance|🩼
+Overwhelm|❄️
+Nostalgia|🪦
+Pessimism|☁️
+Cynicism|🗿
+Complaining|🤐
+Validation-Seeking|📿
+Over-complication|🪢
+Drifting|🪵
+Guilt|🎒
+Jealousy|🎯
+Stubbornness|🧱
+Disorganization|📦
+Short-sightedness|🌫️
+Over-promising|🎈
+Information-Hoarding|📚
+Vague Goals|💨
+Excuses|🤫
+Cheapness|🔐
+Sloth|🛋️
+Timidness|🤐
+Distrust|🚧
+Regret|⚓
+Naivety|🫧
+Deficit-Thinking|🕳️
+Silos|🗄️
+Half-Measures|🩴
+Micro-Optimization|📐
+Worry|🪢
+Apathy|⚱️
+Over-Sensitivity|🥛
+Prejudice|⚖️
+Scattered Energy|🏹
+Fixed Mindset|🧊
+Victimhood|🩼
+Over-Confidence|⚠️
+Dependency|🪢
+Guardedness|🛡️
+Boredom|💨
+Satiation|🔝
+Deflection|🪃
+Anxiety|🪨
+Inconsistency|⏳
+Sentimentality|💝
+Short-cutting|🪤
+Over-talking|📢
+Hyper-Caution|🛑
+Fatalism|🪙
+Imitation|📄
+False Progress|🏃
+Paranoia|🦔
+Frustration|🔨
+Misalignment|⚙️
+Tunnel Vision|🧻
+Over-Budgeting Time|⏳
+Low Standards|🧹
+Fear of Judgment|⚖️
+Scratched Records|💿
+Comfort-Seeking|🛌
+Micro-Thinking|🧵
+Deficit-Focus|🥤
+Mental Fatigue|🪫
+Hesitation|🚧
+Over-Siphoning|🥤
+Isolationism|🏝️
+Gullibility|🪝
+Technophobia|🧮
+Burnout-Glory|🧨
+Passive Listening|🧽
+Pride|👑
+Emotional Reactive|⛵
+Symptom-Fixing|🩹
+Scope Creep|🌿
+Low Velocity|🐌
+Wishful Thinking|🦴
+Identity-Lock|🐚
+Terminal Hesitation|🔨`;
+
+// SELF-EMPLOYMENT (100)
+const SELFEMP_RAW=`Trading Time for Money|⏰
+Solopreneur Martyrdom|🐂
+Feast-or-Famine|⏳
+Under-pricing|🧹
+Scope Creep|🌿
+Bad Client Retention|🐕
+Tax Procrastination|🔐
+Imposter Pricing|🎭
+Working In Not On|🪚
+Shiny Object Syndrome|🪱
+No Contract Execution|🪢
+Discounting Habit|✂️
+Free Consultation Trap|🧽
+Invoicing Delays|⚓
+Zero Marketing|🕳️
+Disorganized CRM|📦
+Home-Office Distraction|🛋️
+Over-customization|🪢
+Low-Value Task Hoarding|📎
+Isolation Depression|🗄️
+No Emergency Buffer|🥤
+Over-promising Availability|📿
+Blurry Value Prop|🌫️
+Lack of Subscriptions|🎲
+Burnout Glorification|🧨
+Brand Invisibility|🌫️
+Hoping for Referrals|🦴
+Equipment Cheapness|🧮
+No Business Identity|🪣
+Vague Scopes|🌁
+Perfecting the Website|📐
+Over-reliance on One Client|🩼
+Guilt Over Time Off|🎒
+Taking Bad Fits|🪤
+Manual Scheduling|⚙️
+Perfectionist Delays|🥛
+Ignoring Competitors|🙈
+Emotional Sales Calls|🎯
+No Standard SOPs|🧱
+Passive Follow-Ups|🪃
+Underestimating Timelines|⏳
+In-Box Slavery|🤐
+Copycat Offers|📄
+Untracked Expenses|🚰
+Hiding Behind Admin|🏃
+Complacency After Win|🪨
+Apologetic Tone|🤫
+Unprotected IP|🚧
+Over-educating|📚
+Refusing to Pivot|⚓
+Zero Legal Protection|🔨
+Scope Creep Guilt|🪨
+No Onboarding Flow|🌫️
+Working in Pajamas|🩴
+Non-Ideal Industries|🦔
+Manual Follow-ups|🪢
+Fear of Cold Outbound|🛡️
+Free Trial Extensions|🕳️
+Over-Explaining Pricing|📢
+Poor Asset Management|📦
+No Retainer Escalation|🔝
+Profit as Salary|🥤
+Chasing Vanity Media|🎈
+Unprepared Pitches|🙈
+No Client Offboarding|🔌
+Disorganized Schedule|⏳
+Letting Clients Direct You|🪢
+Hoping for Funding|🩼
+Over-collateralizing|📎
+Ignoring Outflow|⚠️
+Worrying About Gossip|⚖️
+Vague Invoicing|💨
+No Performance Dashboard|🙈
+One More Course Delusion|🕸️
+Emotional Pricing Drop|🧹
+Manual Data Syncing|⚙️
+Ignoring Lead Decay|🧊
+Over-complicating Proposals|🪢
+Refusing to Outsource|🪨
+Unproductive Networking|🏃
+Past Failure Pricing|💿
+No Business Protection|🏺
+Micro-Offers|🧵
+Allowing Unscheduled Calls|🔔
+Ignoring Burnout|🪫
+Hesitating on Hires|🚧
+Spending Cash Infusions|🥤
+Working Without Niche|🏝️
+Vague Refund Terms|🕳️
+Avoiding Modern Tools|🧮
+Over-promising Turnarounds|🔨
+Passive Proposal Resends|🧽
+Ego-Driven Scaling|👑
+Reactivity to Reviews|🪃
+Treating Symptoms|🩹
+Feature-Creep Delays|🌿
+Low-Velocity Lead Capture|🐌
+Relying on Hope|🦴
+Identity Lock|🐚
+Terminal Execution Delay|⚓`;
+
+// PARENTING (100)
+const PARENTING_RAW=`Emotional Reactivity|⚖️
+Generational Copying|⛓️
+Perfectionist Expectations|🏺
+Parental Martyrdom|🐂
+Over-Scheduling|⏰
+Screen-Time Subbing|🧱
+Comparison Traps|🪞
+Guilt-Driven Indulgence|🎒
+Helicoptering|🕸️
+Inconsistency|⏳
+Future Projection|🫣
+Labeling|🎭
+Emotional Blackmail|🪢
+Silo Parenting|🏝️
+Dismissive Listening|🔇
+Public Pride Focus|👑
+Conditional Love|🔒
+Over-Identified Success|🏆
+Symptom-Fighting|🩹
+Micromanaging Play|🐕
+Defensiveness|🛡️
+Scarcity of Patience|⏳
+Empty Threats|🎈
+Adultifying|🙈
+Marital Siphoning|⚓
+Living in Yesteryear|🪦
+Pessimism Over Phases|☁️
+Cynical Doom-Scrolling|🗿
+Martyr-Complaining|🤐
+Over-Protection|🫧
+Over-complicating Routines|🪢
+Drifting Without Values|🪵
+Internalizing Guilt|🎒
+Sibling Comparison|🎯
+Losing Your Identity|🐚
+Disorganized Logistics|📦
+Short-Sighted Peace|🌫️
+Over-Promising Rewards|🪱
+Information Overload|📚
+Vague Directions|💨
+Blaming the Child|🤐
+Financial Anxiety|🔐
+Emotional Lazy-Loading|🛋️
+Timid Boundary-Setting|🤫
+Distrusting Caregivers|🚧
+Regretting the Past|⚓
+Naivety About Peers|🙈
+Deficit-Focus|🕳️
+Family Isolation|🗄️
+Half-Hearted Play|🩴
+Micro-Correcting|📐
+Worst-Case Imagining|🪢
+Apathy to Inner World|⚱️
+Over-Sensitivity|🥛
+Prejudice Against Interests|⚖️
+Scattered Rules|🏹
+Fixed Capacity Bias|🧊
+Victimhood Parenting|🩼
+Over-Confidence|⚠️
+Dependency on Trends|🪢
+Guarded Emotionality|🛡️
+Boredom Abandonment|💨
+Satiation Stop|🔝
+Deflecting Help|🪃
+Anxiety Flooding|🪨
+Inconsistent Routines|⏳
+Sentimentality Hoarding|💝
+Short-cutting Communication|🪤
+Over-Talking Warnings|📢
+Hyper-Caution|🛑
+Fatalism of Trajectory|🪙
+Imitation Desires|📄
+False Quality Time|🏃
+Paranoia Over Privacy|🦔
+Frustration Outbursts|🔨
+Misalignment of Style|⚙️
+Tunnel Vision Goals|🧻
+Over-Budgeting Independence|⏳
+Low Behavioral Standards|🧹
+Fear of Outgrown Status|⚖️
+Scratched Record Blame|💿
+Comfort-Seeking|🛌
+Micro-Thinking Rewards|🧵
+Deficit-Focus Correction|🥤
+Mental Fatigue Snapping|🪫
+Hesitation on Talks|🚧
+Over-Siphoning Focus|🥤
+Isolation Separation|🏝️
+Gullibility to Stories|🪝
+Technophobia Bans|🧮
+Burnout-Glory|🧨
+Passive Listening|🧽
+Pride-Driven Perfection|👑
+Emotional Flooding|⛵
+Symptom Treatment|🩹
+Scope Creep Rules|🌿
+Low Velocity Response|🐌
+Wishful Thinking|🦴
+Identity Lock|🐚
+Terminal Connection Delay|⚓`;
+
+// ENGINEERING (100)
+const ENGINEERING_RAW=`Over-Engineering|🔨
+Siloed Architecture|🗄️
+Premature Optimization|📐
+Technical Debt|🪨
+Not Invented Here|🧱
+Scope Creep|🌿
+Golden Hammer|🔨
+Analysis Paralysis|🪨
+Ignoring Edge Cases|🏺
+Cargo Cult Engineering|🎭
+Assumption-Based Scaling|⚠️
+Disorganized Version Control|📦
+Symptom Patching|🩹
+Reinventing the Wheel|🏃
+Zero Automated Testing|🐌
+Security Afterthought|🔓
+Legacy Code Nostalgia|🪦
+Timid Refactoring|🕸️
+Vague Variable Naming|💨
+Feedback Defensiveness|🛡️
+Hardcoding Variables|🧱
+Ignoring Hardware Limits|🛑
+Feature Bloat|🎈
+Lone-Wolf Development|🏝️
+Burnout Coding|🪫
+Ignoring Tech Debt|⚓
+Pessimistic Failure|☁️
+Cynical Tool Contempt|🗿
+Passive Error Swallowing|🤐
+Validation Delegation|🩼
+Over-Complicated Trees|🪢
+Drifting Requirements|🪵
+Imposter Deployment Guilt|🎒
+Competitive Refactoring|🎯
+Stubborn Architecture|🧱
+Disorganized Repositories|📦
+Short-Sighted Performance|🌫️
+Vaporware Promising|🎈
+Endless Tutorial Hoarding|📚
+Vague API Documentation|💨
+Blaming the Environment|🤐
+Infrastructure Cheapness|🔐
+Lazy-Loading Optimization|🛋️
+Timid Refusal to Automate|🤫
+Zero Modular Separation|🚧
+Regretting Defunct Paradigms|⚓
+Naive Framework Trust|🙈
+Deficit-Focus Optimization|🕳️
+Silo Project Execution|🗄️
+Half-Hearted Unit Tests|🩴
+Micro-Tuning Loops|📐
+Worst-Case Freezing|🪢
+Systemic Apathy|⚱️
+Hypersensitivity to Breaks|🥛
+Prejudice Against No-Code|⚖️
+Scattered Frameworks|🏹
+Fixed Capacity Bias|🧊
+Victimhood Documentation|🩼
+Over-Confidence in Scripts|⚠️
+Dependency on Single Cloud|🪢
+Guarded Schematics|🛡️
+Boredom Abandonment|💨
+Satiation Optimization Halt|🔝
+Deflecting Optimization|🪃
+Anxiety Over-Logging|🪨
+Inconsistent Indentation|⏳
+Sentimentality to Scripts|💝
+Short-Cutting Concurrency|🪤
+Over-Talking Plans|📢
+Hyper-Caution Security|🛑
+Fatalism of Containment|🪙
+Imitation Framework|📄
+False Progress Metric|🏃
+Paranoia of Open Source|🦔
+Frustration Refactoring|🔨
+Hardware Misalignment|⚙️
+Tunnel Vision Optimization|🧻
+Over-Budgeting Timelines|⏳
+Low Documentation|🧹
+Fear of Deprecation|⚖️
+Scratched Record Debugging|💿
+Comfort-Seeking Copy-Paste|🛌
+Micro-Thinking Scaling|🧵
+Deficit-Focus Tooling|🥤
+Mental Fatigue Crashing|🪫
+Hesitation on Alerts|🚧
+Over-Siphoning Memory|🥤
+Isolation Isolationism|🏝️
+Gullibility to Marketing|🪝
+Technophobia of AI|🧮
+Burnout Code Overtime|🧨
+Passive Code Approvals|🧽
+Pride-Driven Layouts|👑
+Emotional Reactive Refactor|⛵
+Symptom Treatment|🩹
+Feature-Creep Stalls|🌿
+Low-Velocity Systems|🐌
+Wishful Thinking Deployments|🦴
+Identity Lock Framework|🐚
+Terminal Hesitation|⚓`;
+
+// RETIREMENT (100)
+const RETIREMENT_RAW=`Identity Loss|🪪
+Spending Freeze|🔐
+Sedentary Lifestyle|🛋️
+Social Isolation|🧱
+Routine Collapse|⚓
+Brain Stagnation|⚙️
+Living in Retrospect|🪦
+Hypochondria Focus|💊
+Someday Delay|⏳
+Guilt Over Non-Productivity|🐂
+Financial Denial|🙈
+Over-Subsidizing Kids|🕳️
+The Boredom Trap|🏃
+Hoarding Junk|📦
+Spousal Friction|⚖️
+Loss of Urgency|🐌
+Health Neglect|🪨
+Escapism Excess|🎲
+Generational Disconnect|🌉
+Anxiety of Longevity|🪢
+Passive Consumption|🧽
+Regret Replaying|💿
+Refusing Modern Tools|🧮
+The Burden Mindset|⛓️
+Terminal Drift|⚓
+Market Panic|🔨
+Pessimism Over Aging|☁️
+Cynicism Toward Trends|🗿
+Complaining Over Systems|🤐
+Validation From Old Peers|📿
+Over-complicating Travel|🪢
+Drifting Without Cause|🪵
+Guilt Over Spending|🎒
+Jealousy of Young Wealth|🎯
+Stubborn Health Refusal|🧱
+Disorganized Estates|📦
+Short-Sighted Income|🌫️
+Over-Promising Labor|🐕
+Information Overload|📚
+Vague Legacy Goals|💨
+Excuses for Isolation|🤐
+Extreme Cheapness|🔐
+Mental Sloth|🛋️
+Timid Exploration|🤫
+Distrust of Successors|🚧
+Regretting Exit Timing|⚓
+Naivety Over Costs|🙈
+Deficit-Focus Movement|🕳️
+Family Siloing|🗄️
+Half-Hearted Hobbies|🩴
+Micro-Managing Houses|📐
+Worry Over Outliving|🪢
+Apathy to Appearance|⚱️
+Over-Sensitivity|🥛
+Prejudice Against Apps|⚖️
+Scattered Actions|🏹
+Fixed Mindset Bias|🧊
+Victim of Systems|🩼
+Over-Confidence in Health|⚠️
+Dependency on Kids|🪢
+Guarded Living Options|🛡️
+Boredom Numbness|💨
+Satiation Slump|🔝
+Deflecting New Friends|🪃
+Anxiety Over Freedom|🪨
+Inconsistent Tracking|⏳
+Sentimentality Overload|💝
+Short-cutting Nutrition|🪤
+Over-talking Health|📢
+Caution Activity Blocking|🛑
+Fatalism of Legacy|🪙
+Imitation of Retirees|📄
+False Quality Leisure|🏃
+Paranoia Over Scams|🦔
+Frustration Over Pace|🔨
+Misalignment of Location|⚙️
+Tunnel Vision Assets|🧻
+Over-Budgeting Naps|⏳
+Low Standards for Peers|🧹
+Fear of Lost Relevance|⚖️
+Scratched Record Grief|💿
+Comfort-Seeking Isolation|🛌
+Micro-Thinking Financials|🧵
+Deficit-Focus Mobility|🥤
+Mental Fatigue Solitude|🪫
+Hesitation on Care|🚧
+Over-Siphoning Capital|🥤
+Isolationism from Tech|🏝️
+Gullibility to Media|🪝
+Technophobia of Auto-Pay|🧮
+Over-Volunteering Burnout|🧨
+Passive Advice Listening|🧽
+Pride Heavy Lifting|👑
+Emotional Reactivity|⛵
+Symptom Treatments|🩹
+Feature-Creep Hobbies|🌿
+Low-Velocity Outreach|🐌
+Wishful Thinking Health|🦴
+Identity Lock Work Bias|🐚
+Terminal Completion Delay|⚓`;
+
+// Parse all category lists
+const QUANTUM_WORDS=parseList(QUANTUM_RAW);
+const SELFEMP_WORDS=parseList(SELFEMP_RAW);
+const PARENTING_WORDS=parseList(PARENTING_RAW);
+const ENGINEERING_WORDS=parseList(ENGINEERING_RAW);
+const RETIREMENT_WORDS=parseList(RETIREMENT_RAW);
+
+// POSITIVE WORDS — per category, each with an effect type:
+//   'water' = water drop (single hit)
+//   'wave'  = wave burst (ripple)
+//   'shock' = shock wave (push neighbors out)
+function parsePos(raw){
+  return raw.trim().split('\n').map(line=>{
+    const parts=line.split('|');
+    return{name:parts[0].trim(),effect:(parts[1]||'water').trim()};
+  });
+}
+
+const QUANTUM_POS_RAW=`Audacity|water
+Decisiveness|water
+Momentum|wave
+Self-Congruence|shock
+Courage|shock
+Optimism|shock
+Visionary Thinking|wave
+Hyper-Focus|wave
+Iterative Speed|water
+Fluidity|water
+Self-Referencing|shock
+Merit-Mindset|shock
+Synergy|wave
+Calculated Risk|shock
+Macro-Delegation|wave
+Readiness|water
+Conviction|shock
+Sustainability|wave
+Strategic Precision|water
+Receptivity|water
+Innovation|shock
+Abundance Mindset|shock
+Persistence|wave
+Autonomy|shock
+Simplicity|water
+Futurism|wave
+Possibility-Thinking|shock
+Open-Mindedness|water
+Solution-Sourcing|wave
+Self-Validation|shock
+Streamlining|water
+Targeting|water
+Ascension|wave
+Inspiration|shock
+Adaptability|water
+Systemization|wave
+Macro-Vision|wave
+Under-Promising|water
+Aggressive Execution|shock
+Hyper-Specificity|water
+Radical Accountability|shock
+Capital Leverage|wave
+High-Output|wave
+Boldness|shock
+Strategic Trust|wave
+Present-Focus|water
+Pragmatism|water
+Asset-Leverage|wave
+Ecosystem-Integration|wave
+All-In Commitment|shock
+Macro-Leverage|wave
+Intentional Projection|wave
+Obsession|shock
+Thick-Skin|shock
+Agnosticism|water
+Laser-Convergence|water
+Growth Mindset|shock
+Player-Mindset|shock
+Grounded Boldness|shock
+Self-Reliance|shock
+Radical Transparency|shock
+Process-Love|water
+Infinite Horizon|wave
+Instant Capture|water
+Presence|water
+Relentless Rhythm|wave
+Performance-Focus|wave
+Integrity-Speed|water
+Silent Execution|water
+Velocity-First|wave
+Design-Mindset|wave
+Origination|shock
+High-Impact Action|shock
+Dominance-Mindset|shock
+Exponential Patience|wave
+Core-Congruence|shock
+Peripheral Awareness|wave
+Time-Compression|wave
+Uncompromising Excellence|shock
+Audience-Agnosticism|shock
+Mental Rewriting|water
+Discomfort-Adaptation|shock
+Macro-Scaling|wave
+Resourcefulness|water
+Energy-Management|water
+Decisive Strike|shock
+Aggressive Reinvestment|wave
+Alliance-Building|wave
+Due Diligence|water
+Tech-Leverage|wave
+High-Efficiency|water
+Active Implementation|wave
+Intellectual Humility|water
+Stoic Execution|water
+Root-Cause Analysis|water
+Minimum Viable Launch|water
+Blitzscaling|wave
+Deterministic Action|shock
+Identity-Shifting|shock
+The Grand Leap|shock`;
+
+const SELFEMP_POS_RAW=`Value-Based Pricing|shock
+Strategic Out-Sourcing|wave
+Pipeline Management|wave
+Premium Positioning|shock
+Strict Boundary Setting|water
+Client Vetting|water
+Proactive Accounting|water
+Data-Backed Offers|water
+CEO Days|wave
+Monolithic Focus|wave
+Ironclad Agreements|water
+Value Stacking|wave
+Paid Audits|water
+Automated Billing|water
+Paid Client Acquisition|wave
+Pipeline Automation|wave
+Deep Work Blocks|wave
+Productized Services|wave
+Virtual Assistance|wave
+Ecosystem Community|wave
+Capital Runway|wave
+Communication Guardrails|water
+Hyper-Niche Specialization|water
+Recurring Retainers|wave
+High-Leverage Output|wave
+Authority Building|shock
+Outbound Prospecting|wave
+Asset Investment|wave
+Corporate Separation|shock
+Milestone Specificity|water
+Direct Cash Focus|shock
+Client Diversification|wave
+Planned Recovery|water
+Qualification Filters|water
+Calendar Links|water
+Beta Testing|water
+Market Intelligence|water
+Stoic Pipelines|wave
+Standard Operating Manuals|wave
+Relentless Cadence|wave
+Buffer Scheduling|water
+Batch Processing|water
+Category Design|shock
+Monthly Lean Audit|water
+Outbound Leaps|shock
+Continuous Pipeline|wave
+Equal-Stature Posture|shock
+Escrow Delivery|water
+Just-in-Time Learning|water
+Rapid Market Testing|water
+Risk Mitigation|water
+Value Assertiveness|shock
+Welcome Automation|water
+Identity Triggers|shock
+Core Competency Focus|wave
+Automated Nurture|wave
+Volume Desensitization|shock
+Hard Expiration|water
+Silent Quoting|water
+Cloud Architecture|wave
+Annual Rate Adjustments|shock
+Reinvestment Reserve|wave
+Conversion Tracking|water
+Pre-Call Auditing|water
+Testimonial Extraction|water
+Time-Theming|wave
+Prescriptive Authority|shock
+Bootstrapping Velocity|wave
+Conversational Selling|water
+Predictive Accounting|water
+Market Insularity|wave
+Transparent Ledger|water
+Unit Economics|water
+Market Validation|water
+Agnostic Rate Standard|shock
+Zapier Infrastructure|wave
+Speed-to-Lead|water
+One-Page Close|water
+Fractional Operations|wave
+High-Intent Networking|wave
+Clean Slate Auditing|shock
+Redundant Backup|water
+High-Ticket Engineering|wave
+Boundary Enforcement|water
+Energy Conservation|water
+Proactive Delegation|wave
+Escrow Allocation|water
+Surgical Positioning|shock
+Clawback Agreements|water
+AI Pipeline Leverage|wave
+Under-Promise Over-Deliver|water
+Closing Audits|water
+Lean Efficiency|water
+Objective Resolution|water
+Foundational Design|wave
+Minimum Viable Service|water
+Frictionless Lead Capture|water
+Algorithmic Outbound|wave
+Enterprise Mindset|shock
+The Grand Launch|shock`;
+
+const PARENTING_POS_RAW=`The Mindful Pause|water
+Conscious Pattern-Breaking|shock
+Developmental Realism|water
+Strategic Self-Care|water
+White-Space Protection|wave
+Engaged Connection|wave
+Individual Appreciating|water
+Presence Over Presents|shock
+Autonomy Support|wave
+Predictable Guardrails|wave
+Present-Moment Anchoring|water
+Behavior Separation|water
+Clear Objective Requests|water
+Village Activation|wave
+Active Validation|water
+Child-Centric Focus|wave
+Unconditional Attachment|shock
+Separated Identity|shock
+Root-Cause Investigation|water
+Child-Led Exploration|wave
+Rupture and Repair|shock
+Buffer Transitions|water
+Measured Consequences|water
+Neurological Empathy|water
+Unified Front Core|wave
+Modern-Day Attunement|water
+Transient Mindset|shock
+Rational Boundary Setting|water
+Joy-Spotting|water
+Managed Risk Exposure|wave
+Radical Simplicity|shock
+Family Core Blueprint|wave
+Quality Over Quantity|shock
+Clean-Slate Individualism|shock
+Personal Preservation|water
+Centralized Calendar|wave
+Long-Term Character Focus|wave
+Intrinsic Motivation|wave
+Intuitive Grounding|water
+Surgical Directives|water
+Stress-Expression Theory|water
+Balanced Allocation|wave
+Proactive Attention|wave
+Loving Authority|shock
+Flexibility Tolerance|water
+The Clean Sheet|shock
+Open-Door Culture|wave
+Positive Reinforcement|wave
+Social Integration|wave
+Immersive Micro-Blocks|wave
+Macroscopic Acceptance|shock
+Statistical Grounding|water
+Curious Interviewing|water
+Co-Regulation|wave
+Interest Bridging|wave
+The Core Three|water
+Effort-Based Praise|water
+Ownership Leadership|shock
+Continuous Safety Checking|water
+Rock-Solid Core|shock
+Healthy Modeling|wave
+Creative Redesign|wave
+Adolescent Availability|wave
+Gracious Acceptance|water
+Decompression Boundary|water
+Circadian Structure|wave
+Curated Archives|water
+Contextual Transparency|water
+Immediate Action|shock
+Vetted Exploration|wave
+Long-Game Horizon|wave
+Authentic Unfolding|wave
+True Present Connection|water
+Trust-Based Dialogue|wave
+Calm System Building|wave
+Private Alignment|wave
+Wholistic Character Design|wave
+Scaffolded Responsibility|wave
+Dignified Respect|shock
+Natural Release|shock
+Fresh Morning Policy|shock
+Nutritional Integrity|water
+Contribution Culture|wave
+Unconditional Support|shock
+Energy Boundary|water
+Proactive Conversations|wave
+Temporal Boundaries|water
+Intergenerational Weaving|wave
+Objective Verification|water
+Digital Literacy Mentoring|wave
+Wellness Modeling|wave
+Full Visual Connection|water
+Authentic Expression|shock
+The Emotional Anchor|shock
+Deep Mental Checking|water
+Clear Frameworks|water
+Reliable Lifeline Status|shock
+Deliberate Legacy Design|wave
+Adaptive Leadership|wave
+The Present Legacy|shock`;
+
+const ENGINEERING_POS_RAW=`Occams Architecture|wave
+Open-Source Clarity|wave
+Functional Validation|water
+Clean-Code Discipline|water
+Leveraged Integration|wave
+Specification Control|water
+Agnostic Tool Selection|shock
+Rapid Prototyping|wave
+Stress-Test Architecture|shock
+First-Principles Derivation|shock
+Empirical Load Simulation|wave
+Git Architecture|wave
+Root-Cause Analysis|water
+Framework Utilization|wave
+Continuous Integration|wave
+Security-by-Design|shock
+Infrastructure Migration|wave
+Test-Driven Safety Nets|wave
+Semantic Precision|water
+Egoless Peer Verification|shock
+Dynamic Configuration|wave
+Resource-Conscious Modeling|water
+Lean Utility Execution|water
+Interoperable Syncing|wave
+Cognitive Reset Protocol|water
+Debt Sprints|wave
+Fault-Tolerant Planning|wave
+Toolchain Evaluation|water
+Radical Telemetry|shock
+Local Integrity Audits|water
+Lean Dependency Mapping|water
+Immutable Specifications|water
+Phased Canary Rollouts|wave
+Collaborative Convergence|wave
+Agile Pivot Mechanics|wave
+Unified Asset Architecture|wave
+10x Scale Projections|shock
+Proof-of-Concept Benchmarks|water
+Sandbox Execution|water
+Self-Documenting Architecture|wave
+Containerized Determinism|water
+Compute Investment|wave
+Performance Profiling|water
+Scripted Automation|wave
+Decoupled Architecture|wave
+Pipeline Modernization|wave
+Deep Security Audits|water
+Bottleneck Targeting|water
+Contract-First Development|water
+High-Fidelity Asserts|water
+Complexity Auditing|water
+Automated Rollbacks|wave
+Ruthless Code Pruning|shock
+Blameless Post-Mortems|shock
+Pragmatic Prototyping|wave
+Stack Standardization|wave
+Incremental Refactoring|water
+Self-Documenting Code|wave
+Staging Simulation|wave
+Cloud-Agnostic Containers|wave
+Cross-Functional Mapping|wave
+Boilerplate Generation|water
+Performance Budgeting|water
+Diagnostic Profiling|water
+Structured Ingestion|water
+Code Linter Rules|water
+Overhead Minimization|water
+Thread-Safe Paradigms|water
+Executable Blueprints|wave
+Automated Compliance|wave
+Deterministic Testing|water
+Right-Sized Infrastructure|water
+High-Impact Efficiency|wave
+Dependency Injection|wave
+Breakpoint Isolation|water
+Hardware-In-The-Loop|wave
+End-to-End Tracking|water
+Time-Compressed Iteration|wave
+Inline Annotation|water
+Version Lifecycle Tracking|water
+Trace Log Injection|water
+Sanitized Input Structuring|water
+Stateless Scaling Design|wave
+Open-Source Leverage|shock
+Deployment Validation|wave
+Status Portals|wave
+Deterministic Collection|water
+Community Integration|wave
+Independent Benchmarking|water
+AI Acceleration|wave
+Sustainable Engineering|wave
+Line-by-Line Verification|water
+Global Standard Alignment|wave
+Objective Exception Handling|water
+Heap Dump Allocation|water
+Strict MVP Cuts|shock
+Chat Integration|water
+Comprehensive Testing|wave
+Polyglot Engineering|shock
+The Production Deployment|shock`;
+
+const RETIREMENT_POS_RAW=`Purpose Redefinition|shock
+Strategic Distribution|wave
+Functional Vitality|water
+Community Weaving|wave
+Fluid Structure|water
+Cognitive Exploration|wave
+Future-Facing Curiosity|wave
+Wellness Management|water
+Immediate Execution|shock
+Mindful Presence|water
+Transparent Auditing|water
+Financial Boundaries|water
+Surgical Selection|water
+Spatial Freedom|shock
+Coordinated Autonomy|wave
+High-Velocity Intent|wave
+Longevity Design|wave
+Creative Creation|shock
+Intergenerational Mentoring|wave
+Mathematical Safety|water
+Active Production|wave
+Clean Slate Living|shock
+Tech Optimization|water
+Value-Add Presence|water
+The Final Great Leap|shock
+Dividend Focus|wave
+Optimized Longevity|wave
+Youthful Adaptability|water
+Variable Budgeting|water
+Self-Sustaining Worth|shock
+Frictionless Adventure|wave
+Micro-Mission Mapping|water
+Earned Utility|water
+Macro-Contentment|shock
+Scientific Compliance|water
+Legacy Architecture|wave
+Vetted Compound Growth|wave
+Intentional Availability|water
+Singular Strategy|wave
+Generational Blueprinting|wave
+Environment Forcing|shock
+Quality Allocation|water
+Intellectual Friction|water
+Micro-Boldness|shock
+Complete Severance|shock
+Present Maximization|water
+Healthcare Budgeting|water
+Asset Optimization|wave
+Grace-First Alignment|shock
+Immersive Execution|wave
+Macro-Project Management|wave
+Data-Backed Safe Rates|water
+Dignified Presentation|water
+Fluid Acceptance|water
+Frictionless Tools|water
+Linear Project Closure|water
+Neuroplasticity Practice|water
+Internal Control|wave
+Calculated Safety|water
+Self-Sourcing Fulfillment|shock
+Proactive Lifestyle Design|wave
+Curious Tracking|water
+Infinite Learning Curve|wave
+Open Peer Onboarding|wave
+Time-Theming Structure|wave
+Pristine Ledger Tracking|water
+Minimalist Decoupling|shock
+Culinary Mastery|water
+Dynamic Dialogue|water
+Modified Execution|water
+Proactive Reconciliation|water
+Custom Lifestyle Engineering|wave
+Immersive Recovery|wave
+Educated Defense|water
+Patience Integration|water
+Geographic Arbitrage|wave
+Inflation-Protected Stacking|wave
+Circadian Alignment|water
+Curated Circle Standards|water
+Anchored Self-Worth|shock
+Forward Movement|wave
+Local Engagement|wave
+Macro Net-Worth Calm|shock
+Alternative Mobility|wave
+Sensory Immersion|water
+Leveraged Outsourcing|wave
+Delayed Luxury Pacing|water
+Visual Linking|water
+Empirical Vetting|water
+Automated Piping|wave
+Boundary-Driven Giving|water
+Fee Transparency|shock
+Mechanical Leverage|wave
+Stoic Body Acceptance|shock
+Lifestyle Modification|shock
+Lean Skill Acquisition|water
+Proactive Social Leadership|wave
+Functional Movement|water
+Fluid Horizon Mindset|wave
+The Grand Renaissance|shock`;
+
+const QUANTUM_POS=parsePos(QUANTUM_POS_RAW);
+const SELFEMP_POS=parsePos(SELFEMP_POS_RAW);
+const PARENTING_POS=parsePos(PARENTING_POS_RAW);
+const ENGINEERING_POS=parsePos(ENGINEERING_POS_RAW);
+const RETIREMENT_POS=parsePos(RETIREMENT_POS_RAW);
+
+const CATEGORY_DATA={
+  quantum:{label:'quantum leap',     words:QUANTUM_WORDS,     pos:QUANTUM_POS},
+  self:{label:'self-employment',     words:SELFEMP_WORDS,     pos:SELFEMP_POS},
+  parenting:{label:'parenting',      words:PARENTING_WORDS,   pos:PARENTING_POS},
+  engineer:{label:'engineering',     words:ENGINEERING_WORDS, pos:ENGINEERING_POS},
+  senior:{label:'retirement',        words:RETIREMENT_WORDS,  pos:RETIREMENT_POS}
+};
+
+// Build emoji map per category for quick lookup
+const WORD_EMOJI=new Map();
+const WORD_KIND=new Map();
+const WORD_EFFECT=new Map();  // positive effect type: 'water', 'wave', 'shock'
+Object.values(CATEGORY_DATA).forEach(d=>{
+  d.words.forEach(w=>{
+    WORD_EMOJI.set(w.name,w.emoji);
+    WORD_KIND.set(w.name,'neg');
+  });
+  d.pos.forEach(p=>{
+    WORD_KIND.set(p.name,'pos');
+    WORD_EFFECT.set(p.name,p.effect);
+  });
+});
+CORE_POS.forEach(w=>{
+  WORD_KIND.set(w,'pos');
+});
+
+// Fisher-Yates shuffle (per user's spec)
+function shuffleArray(array){
+  for(let i=array.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [array[i],array[j]]=[array[j],array[i]];
+  }
+  return array;
+}
+
+const SAYINGS=[
+  "LET'S GET TO WORK",
+  "WHAT ARE YOU WAITING FOR",
+  "WINNER OR LOSER",
+  "TIME TO MOVE",
+  "NO MORE EXCUSES",
+  "BREAK THE LOOP",
+  "WAKE UP",
+  "OWN YOUR THOUGHTS",
+  "ENOUGH",
+  "THE CLOCK IS TICKING"
+];
+
+const COL={line:'#fff',dim:'rgba(255,255,255,.4)',faint:'rgba(255,255,255,.15)',
+  red:'#FF5252',water:'#4FC3F7',breath:'#B3E5FC',sand:'#C9A86A',sky:'#FFB347'};
+
+// ---------- Helpers ----------
+function bo(e){return Object.assign({restitution:.18,friction:.55,frictionAir:.012,density:.0012},e||{});}
+function T(b,fn){cx.save();cx.translate(b.position.x,b.position.y);cx.rotate(b.angle);fn();cx.restore();}
+function ns(){cx.strokeStyle=COL.line;cx.fillStyle='rgba(0,0,0,.7)';cx.lineWidth=1.6;}
+
+// ---------- Positive shape drawers ----------
+function dWater(b){T(b,()=>{
+  cx.fillStyle='rgba(79,195,247,.7)';cx.strokeStyle=COL.water;cx.lineWidth=1.5;
+  cx.beginPath();cx.moveTo(0,-14);cx.bezierCurveTo(11,-4,10,11,0,11);
+  cx.bezierCurveTo(-10,11,-11,-4,0,-14);cx.closePath();cx.fill();cx.stroke();
+  cx.beginPath();cx.arc(-3,1,2,0,Math.PI*2);cx.fillStyle='rgba(255,255,255,.5)';cx.fill();
+});}
+function dRipple(b){T(b,()=>{
+  cx.strokeStyle=COL.breath;cx.lineWidth=1.2;
+  for(let i=0;i<3;i++){
+    const r=14+i*7+Math.sin(performance.now()*.005+i)*2;
+    cx.globalAlpha=.7-i*.2;
+    cx.beginPath();cx.ellipse(0,0,r,r*.45,0,0,Math.PI*2);cx.stroke();
+  }
+  cx.globalAlpha=1;
+});}
+function dSpark(b){T(b,()=>{
+  cx.fillStyle='#fff';cx.beginPath();
+  for(let i=0;i<8;i++){
+    const a=(i/8)*Math.PI*2-Math.PI/2,rr=i%2===0?13:4;
+    const x=Math.cos(a)*rr,y=Math.sin(a)*rr;
+    i?cx.lineTo(x,y):cx.moveTo(x,y);
+  }
+  cx.closePath();cx.fill();
+});}
+
+// ---------- Negative shape drawers (compact set) ----------
+function dClock(b){T(b,()=>{ns();
+  cx.beginPath();cx.rect(-18,-28,36,56);cx.fill();cx.stroke();
+  cx.beginPath();cx.arc(0,-12,9,0,Math.PI*2);cx.stroke();
+  const t=performance.now()*.001;
+  cx.beginPath();cx.moveTo(0,-12);cx.lineTo(Math.cos(t)*6,-12+Math.sin(t)*6);
+  cx.moveTo(0,-12);cx.lineTo(Math.cos(t*10)*4,-12+Math.sin(t*10)*4);cx.stroke();
+});}
+function dLips(b){T(b,()=>{
+  cx.strokeStyle=COL.red;cx.fillStyle='rgba(255,82,82,.35)';cx.lineWidth=1.6;
+  cx.beginPath();cx.moveTo(-22,0);cx.bezierCurveTo(-14,-10,-4,-10,0,-3);
+  cx.bezierCurveTo(4,-10,14,-10,22,0);cx.bezierCurveTo(14,-3,-14,-3,-22,0);
+  cx.closePath();cx.fill();cx.stroke();
+  cx.beginPath();cx.moveTo(-22,0);cx.bezierCurveTo(-14,9,14,9,22,0);
+  cx.bezierCurveTo(14,3,-14,3,-22,0);cx.closePath();cx.fill();cx.stroke();
+});}
+function dBed(b){T(b,()=>{ns();
+  // mattress
+  cx.beginPath();cx.rect(-34,-7,68,11);cx.fill();cx.stroke();
+  // pillow
+  cx.beginPath();cx.rect(-28,-11,18,5);cx.stroke();
+  // headboard
+  cx.beginPath();cx.rect(-36,-16,4,12);cx.fill();cx.stroke();
+  // 4 leg posts
+  cx.lineWidth=1.6;
+  cx.beginPath();
+  cx.moveTo(-32,4);cx.lineTo(-32,12);
+  cx.moveTo(-22,4);cx.lineTo(-22,11);
+  cx.moveTo(22,4);cx.lineTo(22,11);
+  cx.moveTo(32,4);cx.lineTo(32,12);
+  cx.stroke();
+  // small caps on posts
+  cx.beginPath();
+  cx.arc(-32,12,1.5,0,Math.PI*2);cx.arc(32,12,1.5,0,Math.PI*2);
+  cx.fillStyle=COL.line;cx.fill();
+});}
+function dEmoji(b){T(b,()=>{
+  // Phone being held with a thumb on the screen — represents doomscrolling
+  ns();
+  // Phone body (rounded rect, vertical)
+  const phoneW=20,phoneH=36,r=4;
+  cx.beginPath();
+  cx.moveTo(-phoneW/2+r,-phoneH/2);
+  cx.lineTo(phoneW/2-r,-phoneH/2);
+  cx.arcTo(phoneW/2,-phoneH/2,phoneW/2,-phoneH/2+r,r);
+  cx.lineTo(phoneW/2,phoneH/2-r);
+  cx.arcTo(phoneW/2,phoneH/2,phoneW/2-r,phoneH/2,r);
+  cx.lineTo(-phoneW/2+r,phoneH/2);
+  cx.arcTo(-phoneW/2,phoneH/2,-phoneW/2,phoneH/2-r,r);
+  cx.lineTo(-phoneW/2,-phoneH/2+r);
+  cx.arcTo(-phoneW/2,-phoneH/2,-phoneW/2+r,-phoneH/2,r);
+  cx.closePath();
+  cx.fill();cx.stroke();
+  // Notch
+  cx.beginPath();cx.moveTo(-3,-phoneH/2+1.5);cx.lineTo(3,-phoneH/2+1.5);cx.stroke();
+  // Screen content - faint scrolling feed lines
+  cx.strokeStyle='rgba(255,255,255,.35)';
+  cx.lineWidth=1;
+  for(let i=0;i<5;i++){
+    const yy=-phoneH/2+5+i*5;
+    cx.beginPath();
+    cx.moveTo(-phoneW/2+2,yy);
+    cx.lineTo(phoneW/2-2,yy);
+    cx.stroke();
+  }
+  // home indicator at bottom
+  cx.strokeStyle=COL.line;
+  cx.lineWidth=1.4;
+  cx.beginPath();cx.moveTo(-3,phoneH/2-2);cx.lineTo(3,phoneH/2-2);cx.stroke();
+  // THUMB on screen (oval shape with nail line)
+  cx.fillStyle='rgba(255,210,180,.85)';
+  cx.strokeStyle=COL.line;
+  cx.lineWidth=1.2;
+  cx.beginPath();
+  // thumb pad (oval) - positioned near bottom right of phone, slightly off
+  cx.ellipse(5,8,5,7,-0.3,0,Math.PI*2);
+  cx.fill();cx.stroke();
+  // thumb segment line
+  cx.strokeStyle='rgba(0,0,0,.35)';
+  cx.lineWidth=0.8;
+  cx.beginPath();
+  cx.moveTo(2,6);cx.lineTo(8,11);
+  cx.stroke();
+  // thumb nail crescent
+  cx.fillStyle='rgba(255,235,210,.8)';
+  cx.beginPath();
+  cx.ellipse(6.5,5,1.8,2.2,-0.3,0,Math.PI*2);
+  cx.fill();
+  // Reset
+  cx.fillStyle='rgba(0,0,0,.7)';
+  cx.strokeStyle=COL.line;
+  cx.lineWidth=1.6;
+});}
+function dRedBar(b){T(b,()=>{
+  cx.strokeStyle=COL.red;cx.fillStyle='rgba(255,82,82,.4)';cx.lineWidth=1.6;
+  cx.beginPath();cx.rect(-36,-7,72,14);cx.fill();cx.stroke();
+});}
+function dCouch(b){T(b,()=>{ns();
+  cx.beginPath();cx.rect(-32,0,64,15);cx.fill();cx.stroke();
+  cx.beginPath();cx.rect(-32,-17,64,17);cx.fill();cx.stroke();
+});}
+function dStick(b){T(b,()=>{ns();
+  // head with hair tuft
+  cx.beginPath();cx.arc(0,-13,5,0,Math.PI*2);cx.fill();cx.stroke();
+  cx.beginPath();cx.moveTo(-3,-17);cx.lineTo(-1,-19);cx.lineTo(2,-17);cx.stroke();
+  // face dots (downcast)
+  cx.fillStyle=COL.line;
+  cx.beginPath();cx.arc(-2,-13,.6,0,Math.PI*2);cx.arc(2,-13,.6,0,Math.PI*2);cx.fill();
+  cx.beginPath();cx.moveTo(-2,-11);cx.lineTo(2,-10);cx.stroke();
+  cx.fillStyle='rgba(0,0,0,.7)';
+  // shoulders (slumped — wide trapezoid)
+  cx.beginPath();
+  cx.moveTo(-7,-7);cx.lineTo(7,-7);cx.lineTo(5,-3);cx.lineTo(-5,-3);cx.closePath();
+  cx.fill();cx.stroke();
+  // torso (slightly bent)
+  cx.beginPath();cx.moveTo(-5,-3);cx.lineTo(-4,7);cx.lineTo(4,7);cx.lineTo(5,-3);
+  cx.stroke();
+  // arms hanging
+  cx.beginPath();cx.moveTo(-7,-5);cx.lineTo(-9,5);cx.moveTo(7,-5);cx.lineTo(9,5);cx.stroke();
+  // legs apart
+  cx.beginPath();cx.moveTo(-4,7);cx.lineTo(-6,16);cx.moveTo(4,7);cx.lineTo(6,16);cx.stroke();
+});}
+function dTV(b){T(b,()=>{ns();
+  cx.beginPath();cx.rect(-22,-13,44,26);cx.fill();cx.stroke();
+  cx.beginPath();cx.rect(-18,-10,36,19);cx.stroke();
+});}
+function dChair(b){T(b,()=>{ns();
+  // wheelchair: seat
+  cx.beginPath();cx.rect(-12,-3,22,4);cx.fill();cx.stroke();
+  // backrest
+  cx.beginPath();cx.rect(-12,-19,4,16);cx.fill();cx.stroke();
+  // armrest
+  cx.beginPath();cx.moveTo(-12,-8);cx.lineTo(10,-8);cx.stroke();
+  // large back wheel
+  cx.beginPath();cx.arc(2,8,11,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.arc(2,8,5,0,Math.PI*2);cx.stroke();
+  // wheel spokes
+  cx.lineWidth=1;
+  cx.beginPath();
+  cx.moveTo(-9,8);cx.lineTo(13,8);
+  cx.moveTo(2,-3);cx.lineTo(2,19);
+  cx.moveTo(-5,1);cx.lineTo(9,15);
+  cx.moveTo(-5,15);cx.lineTo(9,1);
+  cx.stroke();
+  cx.lineWidth=1.6;
+  // small front wheel
+  cx.beginPath();cx.arc(-12,10,4,0,Math.PI*2);cx.fill();cx.stroke();
+  cx.beginPath();cx.arc(-12,10,1.5,0,Math.PI*2);cx.fillStyle=COL.line;cx.fill();
+  cx.fillStyle='rgba(0,0,0,.7)';
+  // footrest
+  cx.beginPath();cx.moveTo(-12,2);cx.lineTo(-16,10);cx.lineTo(-13,12);cx.stroke();
+  // push handle
+  cx.beginPath();cx.moveTo(-12,-19);cx.lineTo(-16,-21);cx.stroke();
+});}
+function dBottle(b){T(b,()=>{ns();
+  cx.beginPath();cx.rect(-5,-16,10,3);cx.fill();cx.stroke();
+  cx.beginPath();
+  cx.moveTo(-5,-13);cx.lineTo(-5,-7);cx.lineTo(-8,-4);cx.lineTo(-8,13);
+  cx.lineTo(8,13);cx.lineTo(8,-4);cx.lineTo(5,-7);cx.lineTo(5,-13);
+  cx.closePath();cx.fill();cx.stroke();
+});}
+function dPencil(b){T(b,()=>{ns();
+  cx.beginPath();cx.rect(-3,-18,6,28);cx.fill();cx.stroke();
+  cx.beginPath();cx.moveTo(-3,10);cx.lineTo(0,18);cx.lineTo(3,10);cx.closePath();cx.fill();cx.stroke();
+});}
+function dGate(b){T(b,()=>{ns();
+  cx.beginPath();cx.rect(-32,-20,64,40);cx.fill();cx.stroke();
+  for(let x=-22;x<=22;x+=11){cx.beginPath();cx.moveTo(x,-20);cx.lineTo(x,20);cx.stroke();}
+});}
+function dBinary(b){T(b,()=>{ns();
+  cx.beginPath();cx.rect(-22,-10,44,20);cx.fill();cx.stroke();
+  cx.fillStyle=COL.line;cx.font='500 8px monospace';cx.textAlign='center';
+  cx.fillText('10101',0,-1);cx.fillText('01010',0,7);
+});}
+function dManual(b){T(b,()=>{ns();
+  cx.beginPath();cx.rect(-20,-25,40,50);cx.fill();cx.stroke();
+  cx.strokeStyle=COL.dim;
+  for(let y=-16;y<=16;y+=7){cx.beginPath();cx.moveTo(-13,y);cx.lineTo(13,y);cx.stroke();}
+});}
+function dSpray(b){T(b,()=>{ns();
+  // body (curved bottle)
+  cx.beginPath();
+  cx.moveTo(-9,-2);cx.lineTo(-12,-2);cx.lineTo(-12,16);cx.lineTo(9,16);cx.lineTo(9,-2);cx.lineTo(6,-2);
+  cx.lineTo(6,-7);cx.lineTo(-6,-7);cx.lineTo(-6,-2);cx.closePath();
+  cx.fill();cx.stroke();
+  // liquid line
+  cx.strokeStyle='rgba(79,195,247,.5)';
+  cx.beginPath();cx.moveTo(-11,8);cx.lineTo(8,8);cx.stroke();
+  cx.strokeStyle=COL.line;
+  // neck (narrow piece on top)
+  cx.beginPath();cx.rect(-4,-12,8,5);cx.fill();cx.stroke();
+  // angled head/trigger housing (top of bottle)
+  cx.beginPath();
+  cx.moveTo(-3,-12);cx.lineTo(-3,-18);cx.lineTo(10,-18);cx.lineTo(14,-14);cx.lineTo(3,-12);
+  cx.closePath();cx.fill();cx.stroke();
+  // nozzle (pointing left)
+  cx.beginPath();
+  cx.moveTo(-3,-16);cx.lineTo(-9,-16);cx.lineTo(-9,-14);cx.lineTo(-3,-14);
+  cx.fill();cx.stroke();
+  // trigger (hook curving down)
+  cx.beginPath();
+  cx.moveTo(2,-13);cx.lineTo(2,-9);cx.lineTo(7,-7);cx.lineTo(8,-9);cx.lineTo(5,-12);
+  cx.closePath();cx.fill();cx.stroke();
+  // handle ridges
+  cx.lineWidth=1;
+  cx.beginPath();
+  cx.moveTo(2,-11);cx.lineTo(6,-10);
+  cx.moveTo(2,-9.5);cx.lineTo(6,-8.5);
+  cx.stroke();
+  cx.lineWidth=1.6;
+});}
+function dWings(b){T(b,()=>{ns();
+  // Left wing outline
+  cx.beginPath();
+  cx.moveTo(0,0);
+  cx.bezierCurveTo(-12,-10,-30,-7,-34,4);
+  cx.bezierCurveTo(-30,8,-12,6,0,3);
+  cx.closePath();cx.fill();cx.stroke();
+  // Left feather detail lines
+  cx.lineWidth=1;
+  for(let i=0;i<5;i++){
+    const t=i/4;
+    const x1=-4-t*26, y1=-2-t*7;
+    const x2=-6-t*22, y2=4+t*3;
+    cx.beginPath();
+    cx.moveTo(x1,y1);
+    cx.lineTo(x2,y2);
+    cx.stroke();
+  }
+  // Left tip feathers (curved)
+  cx.beginPath();
+  cx.moveTo(-34,4);cx.bezierCurveTo(-30,2,-26,3,-22,5);
+  cx.moveTo(-32,6);cx.bezierCurveTo(-28,4,-24,5,-20,6);
+  cx.stroke();
+  
+  // Right wing outline
+  cx.lineWidth=1.6;
+  cx.beginPath();
+  cx.moveTo(0,0);
+  cx.bezierCurveTo(12,-10,30,-7,34,4);
+  cx.bezierCurveTo(30,8,12,6,0,3);
+  cx.closePath();cx.fill();cx.stroke();
+  // Right feather detail lines
+  cx.lineWidth=1;
+  for(let i=0;i<5;i++){
+    const t=i/4;
+    const x1=4+t*26, y1=-2-t*7;
+    const x2=6+t*22, y2=4+t*3;
+    cx.beginPath();
+    cx.moveTo(x1,y1);
+    cx.lineTo(x2,y2);
+    cx.stroke();
+  }
+  // Right tip feathers
+  cx.beginPath();
+  cx.moveTo(34,4);cx.bezierCurveTo(30,2,26,3,22,5);
+  cx.moveTo(32,6);cx.bezierCurveTo(28,4,24,5,20,6);
+  cx.stroke();
+  cx.lineWidth=1.6;
+});}
+function dCtrl(b){T(b,()=>{ns();
+  // iPhone body (rounded rect, vertical)
+  const w=20,h=34,r=4;
+  cx.beginPath();
+  cx.moveTo(-w/2+r,-h/2);
+  cx.lineTo(w/2-r,-h/2);
+  cx.arcTo(w/2,-h/2,w/2,-h/2+r,r);
+  cx.lineTo(w/2,h/2-r);
+  cx.arcTo(w/2,h/2,w/2-r,h/2,r);
+  cx.lineTo(-w/2+r,h/2);
+  cx.arcTo(-w/2,h/2,-w/2,h/2-r,r);
+  cx.lineTo(-w/2,-h/2+r);
+  cx.arcTo(-w/2,-h/2,-w/2+r,-h/2,r);
+  cx.closePath();
+  cx.fill();cx.stroke();
+  // notch + speaker
+  cx.beginPath();cx.moveTo(-3,-h/2+1);cx.lineTo(3,-h/2+1);cx.stroke();
+  // screen area
+  cx.lineWidth=1;
+  cx.beginPath();cx.rect(-w/2+2,-h/2+3,w-4,h-8);cx.stroke();
+  // home indicator
+  cx.beginPath();cx.moveTo(-3,h/2-2.5);cx.lineTo(3,h/2-2.5);cx.stroke();
+  // BRAIN on screen
+  cx.lineWidth=1.2;
+  cx.strokeStyle='#fff';
+  cx.beginPath();
+  // brain mini - two bumps
+  cx.moveTo(-6,-4);
+  cx.bezierCurveTo(-6,-8,-2,-9,0,-6);
+  cx.bezierCurveTo(2,-9,6,-8,6,-4);
+  cx.bezierCurveTo(7,2,4,6,0,5);
+  cx.bezierCurveTo(-4,6,-7,2,-6,-4);
+  cx.closePath();
+  cx.stroke();
+  // central line
+  cx.beginPath();cx.moveTo(0,-6);cx.lineTo(0,5);cx.stroke();
+  // CROSS-OUT (big red X)
+  cx.strokeStyle=COL.red;
+  cx.lineWidth=2;
+  cx.beginPath();
+  cx.moveTo(-9,-9);cx.lineTo(9,9);
+  cx.moveTo(9,-9);cx.lineTo(-9,9);
+  cx.stroke();
+  cx.strokeStyle=COL.line;
+  cx.lineWidth=1.6;
+});}
+function dHeart(b){T(b,()=>{
+  cx.strokeStyle=COL.red;cx.fillStyle='rgba(255,82,82,.3)';cx.lineWidth=1.6;
+  cx.beginPath();cx.moveTo(0,16);
+  cx.bezierCurveTo(-22,3,-22,-16,-9,-16);
+  cx.bezierCurveTo(-3,-16,0,-11,0,-5);
+  cx.bezierCurveTo(0,-11,3,-16,9,-16);
+  cx.bezierCurveTo(22,-16,22,3,0,16);cx.closePath();cx.fill();cx.stroke();
+  cx.strokeStyle='#000';cx.lineWidth=2;
+  cx.beginPath();cx.moveTo(0,-5);cx.lineTo(-3,0);cx.lineTo(3,4);cx.lineTo(-1,10);cx.stroke();
+});}
+function dCig(b){T(b,()=>{ns();
+  cx.beginPath();cx.rect(-16,-3,26,6);cx.fill();cx.stroke();
+  cx.beginPath();cx.rect(8,-3,6,6);cx.fill();cx.stroke();
+  cx.beginPath();cx.arc(-16,0,2,0,Math.PI*2);cx.fillStyle=COL.red;cx.fill();
+});}
+function dLoop(b){T(b,()=>{ns();
+  // Oval (wider than tall)
+  cx.beginPath();
+  cx.ellipse(0,0,26,16,0,0,Math.PI*2);
+  cx.stroke();
+  cx.beginPath();
+  cx.ellipse(0,0,16,9,0,0,Math.PI*2);
+  cx.stroke();
+  // Fill the donut region
+  cx.fillStyle='rgba(0,0,0,.7)';
+  cx.beginPath();
+  cx.ellipse(0,0,26,16,0,0,Math.PI*2);
+  cx.ellipse(0,0,16,9,0,0,Math.PI*2,true);
+  cx.fill();
+  // re-stroke for clarity
+  cx.strokeStyle=COL.line;
+  cx.beginPath();cx.ellipse(0,0,26,16,0,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.ellipse(0,0,16,9,0,0,Math.PI*2);cx.stroke();
+  // Arrows showing endless circulation
+  // Right arrow (top of oval going right)
+  cx.lineWidth=1.6;
+  cx.beginPath();
+  cx.moveTo(18,-12);cx.lineTo(24,-8);cx.lineTo(18,-4);
+  cx.stroke();
+  // Left arrow (bottom of oval going left)
+  cx.beginPath();
+  cx.moveTo(-18,12);cx.lineTo(-24,8);cx.lineTo(-18,4);
+  cx.stroke();
+});}
+function dQ(b){T(b,()=>{ns();
+  cx.font='700 36px monospace';cx.textAlign='center';cx.textBaseline='middle';
+  cx.fillStyle='rgba(0,0,0,.7)';cx.fillText('?',0,0);cx.strokeText('?',0,0);
+});}
+function dGravestone(b){T(b,()=>{ns();
+  // Arched gravestone shape
+  cx.beginPath();
+  cx.moveTo(-13,12);cx.lineTo(-13,-4);
+  cx.bezierCurveTo(-13,-14,13,-14,13,-4);
+  cx.lineTo(13,12);
+  cx.closePath();cx.fill();cx.stroke();
+  // Base
+  cx.beginPath();cx.rect(-16,12,32,4);cx.fill();cx.stroke();
+  // R.I.P. text
+  cx.fillStyle='rgba(255,255,255,.55)';
+  cx.font='500 5px monospace';cx.textAlign='center';
+  cx.fillText('R.I.P',0,2);
+  // cross
+  cx.lineWidth=1;
+  cx.beginPath();cx.moveTo(0,-9);cx.lineTo(0,-3);cx.moveTo(-2,-7);cx.lineTo(2,-7);cx.stroke();
+  cx.lineWidth=1.6;
+});}
+function dBag(b){T(b,()=>{ns();
+  cx.beginPath();cx.rect(-16,-9,32,24);cx.stroke();
+  cx.beginPath();cx.arc(-8,-9,4,Math.PI,0,false);cx.arc(8,-9,4,Math.PI,0,false);cx.stroke();
+});}
+
+// Large SAFE — represents 'playing it safe'
+function dSafe(b){T(b,()=>{ns();
+  // safe body
+  cx.beginPath();cx.rect(-24,-22,48,44);cx.fill();cx.stroke();
+  // inner panel
+  cx.lineWidth=1.2;
+  cx.beginPath();cx.rect(-20,-18,40,36);cx.stroke();
+  // combination dial (circle with marks)
+  cx.beginPath();cx.arc(-2,0,8,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.arc(-2,0,5,0,Math.PI*2);cx.stroke();
+  // dial knob
+  cx.beginPath();cx.arc(-2,0,1.4,0,Math.PI*2);cx.fillStyle=COL.line;cx.fill();
+  cx.fillStyle='rgba(0,0,0,.7)';
+  // dial tick marks around outside
+  cx.lineWidth=1;
+  for(let i=0;i<12;i++){
+    const a=(i/12)*Math.PI*2;
+    const x1=-2+Math.cos(a)*9, y1=Math.sin(a)*9;
+    const x2=-2+Math.cos(a)*10, y2=Math.sin(a)*10;
+    cx.beginPath();cx.moveTo(x1,y1);cx.lineTo(x2,y2);cx.stroke();
+  }
+  cx.lineWidth=1.6;
+  // handle (lever on right side)
+  cx.beginPath();
+  cx.moveTo(14,-2);cx.lineTo(18,-2);cx.lineTo(18,2);cx.lineTo(14,2);
+  cx.fill();cx.stroke();
+  // hinges (left side)
+  cx.beginPath();cx.rect(-23,-16,3,5);cx.fill();cx.stroke();
+  cx.beginPath();cx.rect(-23,11,3,5);cx.fill();cx.stroke();
+  // "SAFE" text on top
+  cx.fillStyle=COL.line;
+  cx.font='500 5px monospace';cx.textAlign='center';
+  cx.fillText('SAFE',-2,-12);
+  cx.fillStyle='rgba(0,0,0,.7)';
+});}
+
+// PLATE WITH MONEY — represents 'eating out'
+function dPlate(b){T(b,()=>{ns();
+  // plate (ellipse)
+  cx.beginPath();
+  cx.ellipse(0,2,24,8,0,0,Math.PI*2);
+  cx.fill();cx.stroke();
+  // plate rim
+  cx.lineWidth=1;
+  cx.beginPath();
+  cx.ellipse(0,2,20,6,0,0,Math.PI*2);
+  cx.stroke();
+  // dollar bill on plate
+  cx.fillStyle='#7FE57F';
+  cx.strokeStyle='#5BB85B';
+  cx.lineWidth=1.2;
+  cx.beginPath();cx.rect(-10,-6,20,9);
+  cx.fill();cx.stroke();
+  // bill details
+  cx.fillStyle='#5BB85B';
+  cx.font='700 6px monospace';cx.textAlign='center';cx.textBaseline='middle';
+  cx.fillText('$',0,-2);
+  // bill corners
+  cx.font='500 4px monospace';
+  cx.fillText('1',-7,-3);cx.fillText('1',7,-3);
+  cx.fillText('1',-7,1);cx.fillText('1',7,1);
+  cx.textBaseline='alphabetic';
+  // small coins beside
+  cx.fillStyle='#D4AF37';
+  cx.strokeStyle='#A0801F';
+  cx.lineWidth=1;
+  cx.beginPath();cx.arc(-14,4,2.5,0,Math.PI*2);cx.fill();cx.stroke();
+  cx.beginPath();cx.arc(14,4,2.5,0,Math.PI*2);cx.fill();cx.stroke();
+  cx.fillStyle='rgba(0,0,0,.7)';
+  cx.strokeStyle=COL.line;
+  cx.lineWidth=1.6;
+});}
+
+// Generic "word block" - rectangle with the word written across it.
+// Used as a fallback for new words that don't have a custom shape.
+function dWordBlock(b,word,isPos){
+  T(b,()=>{
+    cx.strokeStyle=isPos?COL.water:COL.line;
+    cx.fillStyle=isPos?'rgba(79,195,247,.12)':'rgba(0,0,0,.7)';
+    cx.lineWidth=1.4;
+    // Measure word for box width
+    cx.font='500 7px monospace';
+    const w=Math.max(cx.measureText(word.toUpperCase()).width+10,24);
+    const h=14;
+    // rounded rect
+    const r=4;
+    cx.beginPath();
+    cx.moveTo(-w/2+r,-h/2);
+    cx.arcTo(w/2,-h/2,w/2,0,r);
+    cx.arcTo(w/2,h/2,0,h/2,r);
+    cx.arcTo(-w/2,h/2,-w/2,0,r);
+    cx.arcTo(-w/2,-h/2,0,-h/2,r);
+    cx.closePath();
+    cx.fill();cx.stroke();
+    // word
+    cx.fillStyle=isPos?COL.water:COL.line;
+    cx.textAlign='center';cx.textBaseline='middle';
+    cx.fillText(word.toUpperCase(),0,0);
+    cx.textBaseline='alphabetic';
+  });
+}
+
+// ---------- Shape registry ----------
+const S={
+  'drinking water':{kind:'pos',label:'pos:water',body:(x,y)=>Bodies.circle(x,y,11,bo({density:.0008,friction:.02,frictionAir:.02,restitution:.45,label:'pos:water'})),draw:dWater},
+  'taking a deep breath':{kind:'pos',label:'pos:breath',body:(x,y)=>Bodies.circle(x,y,22,bo({density:.0002,friction:0,frictionAir:.05,restitution:.1,label:'pos:breath'})),draw:dRipple},
+  'cleaning your space':{kind:'pos',label:'pos:spark',body:(x,y)=>Bodies.polygon(x,y,4,13,bo({density:.0015,restitution:.55,label:'pos:spark'})),draw:dSpark},
+  'procrastinating':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,40,60,bo({label:'neg'})),draw:dClock},
+  'complaining':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,46,22,bo({label:'neg'})),draw:dLips},
+  'oversleeping':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,72,20,bo({label:'neg'})),draw:dBed},
+  'poor sleep hygiene':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,72,20,bo({label:'neg'})),draw:dBed},
+  'doomscrolling':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,22,38,bo({label:'neg'})),draw:dEmoji},
+  'negative self-talk':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,76,14,bo({label:'neg'})),draw:dRedBar},
+  'sedentary lifestyle':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,68,34,bo({label:'neg'})),draw:dCouch},
+  'isolation':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,14,28,bo({label:'neg'})),draw:dStick},
+  'passive tv watching':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,48,28,bo({label:'neg'})),draw:dTV},
+  'skipping movement':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,30,35,bo({label:'neg'})),draw:dChair},
+  'forgetting water':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,18,32,bo({label:'neg'})),draw:dBottle},
+  'losing track of pills':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,30,24,bo({label:'neg'})),draw:dGravestone},
+  'skipping testing':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,8,38,bo({friction:.1,restitution:.4,label:'neg'})),draw:dPencil},
+  'siloing knowledge':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,68,42,bo({label:'neg'})),draw:dGate},
+  'passive code approval':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,46,22,bo({label:'neg'})),draw:dBinary},
+  'tutorial hell':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,44,52,bo({label:'neg'})),draw:dManual},
+  'playing it safe':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,52,46,bo({density:0.0018,label:'neg'})),draw:dSafe},
+  'avoiding cleaning':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,28,38,bo({label:'neg'})),draw:dSpray},
+  'winging it':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,64,18,bo({label:'neg'})),draw:dWings},
+  'passive screen time':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,22,36,bo({label:'neg'})),draw:dCtrl},
+  'neglecting partnership':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,44,36,bo({label:'neg'})),draw:dHeart},
+  'family autopilot':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,60,18,bo({label:'neg'})),draw:(b)=>dWordBlock(b,'autopilot',false)},
+  'smoking':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,32,7,bo({label:'neg'})),draw:dCig},
+  'repeating routines':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,52,32,bo({chamfer:{radius:14},label:'neg'})),draw:dLoop},
+  'believing everything':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,28,40,bo({label:'neg'})),draw:dQ},
+  'passive consumption':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,36,30,bo({density:.0006,label:'neg'})),draw:dBag},
+  'clinging to past':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,40,28,bo({label:'neg'})),draw:(b)=>dWordBlock(b,'past',false)},
+  // Standalone negatives
+  'eating out':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,52,20,bo({label:'neg'})),draw:dPlate},
+  'spending frivolously':{kind:'neg',body:(x,y)=>Bodies.rectangle(x,y,60,18,bo({label:'neg'})),draw:(b)=>dWordBlock(b,'spending',false)}
+};
+
+// Color palette indexed by emoji category for the colored shape backgrounds
+// ---------- B&W LINE-ART SHAPE LIBRARY ----------
+// Each function draws the emoji's shape in 2D black-and-white lines (no fills).
+// Drawing area roughly ±18px around (0,0). White lines on transparent background.
+
+function ld_boulder(){ // 🪨 rock
+  cx.beginPath();
+  cx.moveTo(-14,4);cx.bezierCurveTo(-18,-6,-8,-14,-2,-10);
+  cx.bezierCurveTo(8,-14,16,-4,14,4);
+  cx.bezierCurveTo(12,12,-12,12,-14,4);cx.closePath();cx.stroke();
+  // crack
+  cx.beginPath();cx.moveTo(-4,-6);cx.lineTo(-1,2);cx.lineTo(4,0);cx.stroke();
+}
+function ld_anvil(){ // 🔨 used for anvil/hammer
+  cx.beginPath();
+  cx.moveTo(-16,-2);cx.lineTo(16,-2);cx.lineTo(20,2);cx.lineTo(14,2);
+  cx.lineTo(10,6);cx.lineTo(-10,6);cx.lineTo(-14,2);cx.lineTo(-20,2);cx.closePath();cx.stroke();
+  cx.beginPath();cx.rect(-8,6,16,8);cx.stroke();
+}
+function ld_hammer(){ // 🔨 hammer
+  cx.beginPath();cx.rect(-14,-10,18,8);cx.stroke();
+  cx.beginPath();cx.moveTo(4,-6);cx.lineTo(4,14);cx.lineTo(-2,14);cx.lineTo(-2,-6);cx.stroke();
+}
+function ld_anchor(){ // ⚓
+  cx.beginPath();cx.arc(0,-12,3,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.moveTo(0,-9);cx.lineTo(0,12);cx.stroke();
+  cx.beginPath();cx.moveTo(-7,-4);cx.lineTo(7,-4);cx.stroke();
+  cx.beginPath();
+  cx.moveTo(-12,6);cx.bezierCurveTo(-12,14,-4,14,-2,10);
+  cx.moveTo(12,6);cx.bezierCurveTo(12,14,4,14,2,10);
+  cx.stroke();
+}
+function ld_mask(){ // 🎭
+  cx.beginPath();
+  cx.moveTo(-12,-8);cx.bezierCurveTo(-14,4,-8,14,0,14);
+  cx.bezierCurveTo(8,14,14,4,12,-8);
+  cx.bezierCurveTo(8,-12,-8,-12,-12,-8);cx.closePath();cx.stroke();
+  cx.beginPath();cx.arc(-5,-2,1.5,0,Math.PI*2);cx.arc(5,-2,1.5,0,Math.PI*2);cx.fill();
+  cx.beginPath();cx.moveTo(-3,6);cx.bezierCurveTo(0,8,0,8,3,6);cx.stroke();
+}
+function ld_chain(){ // ⛓️
+  cx.beginPath();cx.ellipse(-8,0,4,6,0,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.ellipse(0,0,4,6,0,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.ellipse(8,0,4,6,0,0,Math.PI*2);cx.stroke();
+}
+function ld_lock(){ // 🔒
+  cx.beginPath();
+  cx.moveTo(-6,-2);cx.lineTo(-6,-8);
+  cx.bezierCurveTo(-6,-14,6,-14,6,-8);cx.lineTo(6,-2);cx.stroke();
+  cx.beginPath();cx.rect(-9,-2,18,14);cx.stroke();
+  cx.beginPath();cx.arc(0,5,1.5,0,Math.PI*2);cx.fill();
+}
+function ld_blindfold(){ // 🫣 🙈
+  cx.beginPath();cx.rect(-14,-3,28,6);cx.stroke();
+  cx.beginPath();cx.moveTo(-14,0);cx.lineTo(-18,2);
+  cx.moveTo(14,0);cx.lineTo(18,2);cx.stroke();
+}
+function ld_bomb(){ // 💣
+  cx.beginPath();cx.arc(0,4,10,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.moveTo(6,-4);cx.bezierCurveTo(10,-10,14,-8,12,-4);cx.stroke();
+  cx.beginPath();cx.arc(13,-6,1.5,0,Math.PI*2);cx.stroke();
+}
+function ld_vase(){ // 🏺
+  cx.beginPath();
+  cx.moveTo(-7,-10);cx.lineTo(7,-10);cx.lineTo(6,-7);
+  cx.bezierCurveTo(12,-2,12,10,0,12);
+  cx.bezierCurveTo(-12,10,-12,-2,-6,-7);cx.closePath();cx.stroke();
+  // crack
+  cx.beginPath();cx.moveTo(-2,-3);cx.lineTo(0,4);cx.lineTo(-3,9);cx.stroke();
+}
+function ld_cage(){ // 🕸️ cage/trap (vertical bars)
+  cx.beginPath();cx.rect(-12,-12,24,24);cx.stroke();
+  for(let i=-8;i<=8;i+=4){
+    cx.beginPath();cx.moveTo(i,-12);cx.lineTo(i,12);cx.stroke();
+  }
+}
+function ld_mirror(){ // 🪞
+  cx.beginPath();cx.ellipse(0,-2,8,12,0,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.moveTo(0,10);cx.lineTo(0,14);
+  cx.moveTo(-4,14);cx.lineTo(4,14);cx.stroke();
+}
+function ld_crown(){ // 👑
+  cx.beginPath();
+  cx.moveTo(-14,8);cx.lineTo(-12,-8);cx.lineTo(-6,2);cx.lineTo(0,-10);
+  cx.lineTo(6,2);cx.lineTo(12,-8);cx.lineTo(14,8);cx.closePath();cx.stroke();
+  cx.beginPath();cx.arc(-12,-8,1.5,0,Math.PI*2);
+  cx.arc(0,-10,1.5,0,Math.PI*2);cx.arc(12,-8,1.5,0,Math.PI*2);cx.fill();
+}
+function ld_brick(){ // 🧱
+  cx.beginPath();cx.rect(-12,-7,24,14);cx.stroke();
+  cx.beginPath();cx.moveTo(-12,0);cx.lineTo(12,0);
+  cx.moveTo(0,-7);cx.lineTo(0,0);
+  cx.moveTo(-6,0);cx.lineTo(-6,7);
+  cx.moveTo(6,0);cx.lineTo(6,7);cx.stroke();
+}
+function ld_shield(){ // 🛡️
+  cx.beginPath();
+  cx.moveTo(-10,-10);cx.lineTo(10,-10);
+  cx.bezierCurveTo(10,4,6,12,0,14);
+  cx.bezierCurveTo(-6,12,-10,4,-10,-10);cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(0,-6);cx.lineTo(0,8);cx.moveTo(-6,0);cx.lineTo(6,0);cx.stroke();
+}
+function ld_leash(){ // 🐕 leash
+  cx.beginPath();cx.arc(-6,-6,3,0,Math.PI*2);cx.stroke(); // ring
+  cx.beginPath();
+  cx.moveTo(-3,-5);cx.bezierCurveTo(4,-2,8,4,12,12);cx.stroke();
+}
+function ld_shroud(){ // 🌫️ shroud/fog
+  cx.beginPath();
+  cx.moveTo(-14,-2);cx.bezierCurveTo(-16,4,16,4,14,-2);cx.stroke();
+  cx.beginPath();
+  cx.moveTo(-12,4);cx.bezierCurveTo(-14,10,14,10,12,4);cx.stroke();
+  cx.beginPath();
+  cx.moveTo(-10,10);cx.bezierCurveTo(-12,14,12,14,10,10);cx.stroke();
+}
+function ld_explosion(){ // 💥
+  for(let i=0;i<8;i++){
+    const a=(i/8)*Math.PI*2;
+    cx.beginPath();
+    cx.moveTo(Math.cos(a)*3,Math.sin(a)*3);
+    cx.lineTo(Math.cos(a)*12,Math.sin(a)*12);
+    cx.stroke();
+  }
+  cx.beginPath();cx.arc(0,0,3,0,Math.PI*2);cx.stroke();
+}
+function ld_dice(){ // 🎲
+  cx.beginPath();cx.rect(-10,-10,20,20);cx.stroke();
+  cx.beginPath();
+  cx.arc(-5,-5,1.5,0,Math.PI*2);cx.arc(5,-5,1.5,0,Math.PI*2);
+  cx.arc(0,0,1.5,0,Math.PI*2);
+  cx.arc(-5,5,1.5,0,Math.PI*2);cx.arc(5,5,1.5,0,Math.PI*2);cx.fill();
+}
+function ld_earplugs(){ // 🔇 muted speaker
+  cx.beginPath();
+  cx.moveTo(-12,-4);cx.lineTo(-6,-4);cx.lineTo(0,-10);cx.lineTo(0,10);
+  cx.lineTo(-6,4);cx.lineTo(-12,4);cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(4,-6);cx.lineTo(14,6);
+  cx.moveTo(14,-6);cx.lineTo(4,6);cx.stroke();
+}
+function ld_link(){ // 🔗
+  cx.beginPath();cx.ellipse(-5,0,5,3,Math.PI/4,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.ellipse(5,0,5,3,Math.PI/4,0,Math.PI*2);cx.stroke();
+}
+function ld_drain(){ // 🕳️ void/drain
+  cx.beginPath();cx.ellipse(0,0,12,4,0,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.ellipse(0,0,8,3,0,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.ellipse(0,0,4,1.5,0,0,Math.PI*2);cx.stroke();
+}
+function ld_axe(){ // 🪓
+  cx.beginPath();cx.moveTo(2,-12);cx.lineTo(2,14);cx.stroke();
+  cx.beginPath();
+  cx.moveTo(2,-10);cx.lineTo(-10,-8);cx.lineTo(-12,-2);cx.lineTo(2,-4);cx.closePath();cx.stroke();
+}
+function ld_crutch(){ // 🩼
+  cx.beginPath();cx.moveTo(-6,-12);cx.lineTo(6,-12);cx.stroke();
+  cx.beginPath();cx.moveTo(-6,-12);cx.lineTo(0,-4);cx.lineTo(6,-12);cx.stroke();
+  cx.beginPath();cx.moveTo(0,-4);cx.lineTo(0,14);cx.stroke();
+  cx.beginPath();cx.moveTo(-4,14);cx.lineTo(4,14);cx.stroke();
+}
+function ld_avalanche(){ // ❄️
+  for(let i=0;i<6;i++){
+    const a=(i/6)*Math.PI*2;
+    cx.beginPath();
+    cx.moveTo(0,0);cx.lineTo(Math.cos(a)*10,Math.sin(a)*10);
+    cx.stroke();
+  }
+}
+function ld_tombstone(){ // 🪦
+  cx.beginPath();
+  cx.moveTo(-10,12);cx.lineTo(-10,-4);
+  cx.bezierCurveTo(-10,-12,10,-12,10,-4);cx.lineTo(10,12);cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(0,-6);cx.lineTo(0,0);cx.moveTo(-3,-3);cx.lineTo(3,-3);cx.stroke();
+}
+function ld_cloud(){ // ☁️
+  cx.beginPath();
+  cx.arc(-6,2,5,Math.PI,0,false);
+  cx.arc(0,-2,6,Math.PI*1.2,Math.PI*1.95,false);
+  cx.arc(7,2,5,Math.PI*1.5,Math.PI*0.5,false);
+  cx.lineTo(-6,7);cx.closePath();cx.stroke();
+}
+function ld_stone(){ // 🗿 face stone
+  cx.beginPath();
+  cx.moveTo(-9,12);cx.lineTo(-9,-8);
+  cx.bezierCurveTo(-9,-14,9,-14,9,-8);cx.lineTo(9,12);cx.closePath();cx.stroke();
+  cx.beginPath();cx.arc(-3,-2,1,0,Math.PI*2);cx.arc(3,-2,1,0,Math.PI*2);cx.fill();
+  cx.beginPath();cx.moveTo(-3,4);cx.lineTo(3,4);cx.stroke();
+}
+function ld_muzzle(){ // 🤐
+  cx.beginPath();cx.ellipse(0,0,12,7,0,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.moveTo(-10,-3);cx.lineTo(10,-3);
+  cx.moveTo(-10,3);cx.lineTo(10,3);cx.stroke();
+  cx.beginPath();cx.moveTo(-8,0);cx.lineTo(8,0);cx.stroke();
+}
+function ld_collar(){ // 🐕 collar
+  cx.beginPath();cx.ellipse(0,0,12,6,0,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.arc(0,6,2.5,0,Math.PI*2);cx.stroke();
+}
+function ld_knot(){ // 🪢
+  cx.beginPath();
+  cx.moveTo(-12,-4);cx.bezierCurveTo(-4,4,4,-4,12,4);
+  cx.moveTo(-12,4);cx.bezierCurveTo(-4,-4,4,4,12,-4);
+  cx.stroke();
+}
+function ld_log(){ // 🪵
+  cx.beginPath();cx.ellipse(0,0,16,5,0,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.ellipse(-12,0,3,5,0,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.arc(-12,0,1.5,0,Math.PI*2);cx.stroke();
+}
+function ld_sack(){ // 🎒
+  cx.beginPath();
+  cx.moveTo(-9,-6);cx.bezierCurveTo(-12,8,12,8,9,-6);
+  cx.lineTo(6,-10);cx.lineTo(-6,-10);cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(-3,-10);cx.lineTo(3,-10);cx.stroke();
+}
+function ld_dart(){ // 🎯
+  cx.beginPath();cx.arc(0,0,12,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.arc(0,0,8,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.arc(0,0,4,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.arc(0,0,1.5,0,Math.PI*2);cx.fill();
+}
+function ld_wall(){ // 🧱 wall - similar to brick but bigger
+  cx.beginPath();cx.rect(-14,-10,28,20);cx.stroke();
+  for(let r=0;r<2;r++){
+    const y=-10+r*10;
+    cx.beginPath();cx.moveTo(-14,y+5);cx.lineTo(14,y+5);cx.stroke();
+    const offset=r%2===0?0:7;
+    for(let x=-14+offset;x<14;x+=10){
+      cx.beginPath();cx.moveTo(x,y);cx.lineTo(x,y+5);cx.stroke();
+    }
+  }
+}
+function ld_box(){ // 📦
+  cx.beginPath();cx.rect(-11,-9,22,18);cx.stroke();
+  cx.beginPath();cx.moveTo(-11,-9);cx.lineTo(0,-3);cx.lineTo(11,-9);cx.stroke();
+  cx.beginPath();cx.moveTo(0,-3);cx.lineTo(0,9);cx.stroke();
+  // tape
+  cx.beginPath();cx.moveTo(-6,-9);cx.lineTo(-6,9);
+  cx.moveTo(6,-9);cx.lineTo(6,9);cx.stroke();
+}
+function ld_balloon(){ // 🎈
+  cx.beginPath();cx.ellipse(0,-4,8,10,0,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.moveTo(0,6);cx.lineTo(-2,8);cx.lineTo(2,8);cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(0,8);cx.bezierCurveTo(4,12,-4,14,0,16);cx.stroke();
+}
+function ld_books(){ // 📚
+  cx.beginPath();cx.rect(-12,-8,24,4);cx.stroke();
+  cx.beginPath();cx.rect(-10,-4,20,4);cx.stroke();
+  cx.beginPath();cx.rect(-12,0,24,4);cx.stroke();
+  cx.beginPath();cx.rect(-10,4,20,4);cx.stroke();
+}
+function ld_mist(){ // 💨
+  cx.beginPath();cx.moveTo(-12,-4);cx.bezierCurveTo(-8,-6,8,-6,12,-4);cx.stroke();
+  cx.beginPath();cx.moveTo(-14,0);cx.bezierCurveTo(-8,-2,8,-2,14,0);cx.stroke();
+  cx.beginPath();cx.moveTo(-12,4);cx.bezierCurveTo(-8,2,8,2,12,4);cx.stroke();
+}
+function ld_whisper(){ // 🤫 whisper - speech with finger
+  cx.beginPath();cx.arc(0,0,9,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.moveTo(0,-12);cx.lineTo(0,12);cx.stroke();
+  cx.beginPath();cx.arc(0,-4,1,0,Math.PI*2);cx.arc(0,4,1,0,Math.PI*2);cx.fill();
+}
+function ld_fence(){ // 🚧 barrier
+  cx.beginPath();cx.rect(-14,-4,28,8);cx.stroke();
+  cx.beginPath();
+  cx.moveTo(-12,-4);cx.lineTo(-6,4);
+  cx.moveTo(-6,-4);cx.lineTo(0,4);
+  cx.moveTo(0,-4);cx.lineTo(6,4);
+  cx.moveTo(6,-4);cx.lineTo(12,4);
+  cx.stroke();
+}
+function ld_bubble(){ // 🫧
+  cx.beginPath();cx.arc(-2,0,8,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.arc(7,5,4,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.arc(-5,-4,1.5,0,Math.PI*2);cx.stroke();
+}
+function ld_filecabinet(){ // 🗄️ archive/silo
+  cx.beginPath();cx.rect(-10,-12,20,24);cx.stroke();
+  cx.beginPath();cx.moveTo(-10,-4);cx.lineTo(10,-4);
+  cx.moveTo(-10,4);cx.lineTo(10,4);cx.stroke();
+  cx.beginPath();cx.arc(0,-8,1,0,Math.PI*2);cx.arc(0,0,1,0,Math.PI*2);
+  cx.arc(0,8,1,0,Math.PI*2);cx.fill();
+}
+function ld_slipper(){ // 🩴
+  cx.beginPath();
+  cx.moveTo(-10,4);cx.bezierCurveTo(-12,-6,12,-6,10,4);
+  cx.bezierCurveTo(8,10,-8,10,-10,4);cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(0,-3);cx.lineTo(-2,2);cx.moveTo(0,-3);cx.lineTo(2,2);cx.stroke();
+}
+function ld_tweezers(){ // 📐 tweezers
+  cx.beginPath();cx.moveTo(-2,-12);cx.lineTo(-6,12);cx.stroke();
+  cx.beginPath();cx.moveTo(2,-12);cx.lineTo(6,12);cx.stroke();
+  cx.beginPath();cx.moveTo(-2,-12);cx.lineTo(2,-12);cx.stroke();
+}
+function ld_noose(){ // 🪢 noose
+  cx.beginPath();cx.arc(0,4,7,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.moveTo(0,-3);cx.lineTo(0,-14);cx.stroke();
+  cx.beginPath();cx.moveTo(-2,-14);cx.lineTo(2,-14);cx.stroke();
+}
+function ld_ash(){ // ⚱️
+  cx.beginPath();
+  cx.moveTo(-8,-8);cx.lineTo(8,-8);cx.bezierCurveTo(12,0,12,8,8,12);
+  cx.lineTo(-8,12);cx.bezierCurveTo(-12,8,-12,0,-8,-8);cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(-9,-8);cx.lineTo(9,-8);cx.stroke();
+}
+function ld_glass(){ // 🥛 fragile glass
+  cx.beginPath();
+  cx.moveTo(-7,-10);cx.lineTo(-5,12);cx.lineTo(5,12);cx.lineTo(7,-10);cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(-7,-6);cx.lineTo(7,-6);cx.stroke();
+}
+function ld_gavel(){ // ⚖️ scales/gavel
+  cx.beginPath();cx.moveTo(0,-12);cx.lineTo(0,12);cx.stroke();
+  cx.beginPath();cx.moveTo(-10,-8);cx.lineTo(10,-8);cx.stroke();
+  cx.beginPath();cx.moveTo(-12,-4);cx.lineTo(-8,-4);cx.lineTo(-10,2);cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(8,-4);cx.lineTo(12,-4);cx.lineTo(10,2);cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(-6,12);cx.lineTo(6,12);cx.stroke();
+}
+function ld_arrow(){ // 🏹
+  cx.beginPath();cx.moveTo(-12,4);cx.bezierCurveTo(-8,-12,8,-12,12,4);cx.stroke();
+  cx.beginPath();cx.moveTo(-12,4);cx.lineTo(12,4);cx.stroke();
+}
+function ld_ice(){ // 🧊 ice cube
+  cx.beginPath();cx.rect(-10,-10,20,20);cx.stroke();
+  cx.beginPath();cx.moveTo(-10,-6);cx.lineTo(-4,-10);
+  cx.moveTo(-10,0);cx.lineTo(0,-10);
+  cx.stroke();
+}
+function ld_cement(){ // 🧱 cement
+  cx.beginPath();cx.rect(-12,-8,24,16);cx.stroke();
+  cx.beginPath();
+  for(let i=0;i<8;i++){
+    const x=-10+(i%4)*7, y=-5+Math.floor(i/4)*8;
+    cx.arc(x,y,1.5,0,Math.PI*2);
+  }
+  cx.stroke();
+}
+function ld_warning(){ // ⚠️
+  cx.beginPath();
+  cx.moveTo(0,-12);cx.lineTo(12,10);cx.lineTo(-12,10);cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(0,-4);cx.lineTo(0,4);cx.stroke();
+  cx.beginPath();cx.arc(0,7,1.2,0,Math.PI*2);cx.fill();
+}
+function ld_harness(){ // 🪢 harness
+  cx.beginPath();cx.moveTo(-8,-10);cx.lineTo(-4,8);cx.lineTo(4,8);cx.lineTo(8,-10);cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(-8,-2);cx.lineTo(8,-2);cx.stroke();
+  cx.beginPath();cx.moveTo(0,8);cx.lineTo(0,14);cx.stroke();
+}
+function ld_dust(){ // 💨 dust same as mist - smaller wisps
+  cx.beginPath();
+  for(let i=0;i<4;i++){
+    cx.beginPath();
+    const y=-8+i*5;
+    cx.moveTo(-12+i*2,y);cx.bezierCurveTo(-6,y-2,6,y+2,12-i*2,y);
+    cx.stroke();
+  }
+}
+function ld_ceiling(){ // 🔝 top arrow into bar
+  cx.beginPath();cx.moveTo(-12,-8);cx.lineTo(12,-8);cx.stroke();
+  cx.beginPath();
+  cx.moveTo(0,-4);cx.lineTo(0,10);
+  cx.moveTo(-6,2);cx.lineTo(0,-4);cx.lineTo(6,2);cx.stroke();
+}
+function ld_boomerang(){ // 🪃
+  cx.beginPath();
+  cx.moveTo(-12,4);cx.lineTo(-2,-8);cx.lineTo(8,-2);
+  cx.lineTo(2,-2);cx.lineTo(-6,8);cx.closePath();cx.stroke();
+}
+function ld_weight(){ // 🪨 / weight
+  cx.beginPath();cx.moveTo(-10,-6);cx.lineTo(10,-6);cx.lineTo(12,8);cx.lineTo(-12,8);cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(-6,-6);cx.lineTo(-6,-10);cx.lineTo(6,-10);cx.lineTo(6,-6);cx.stroke();
+}
+function ld_hourglass(){ // ⏳
+  cx.beginPath();
+  cx.moveTo(-9,-10);cx.lineTo(9,-10);
+  cx.lineTo(2,0);cx.lineTo(9,10);cx.lineTo(-9,10);cx.lineTo(-2,0);cx.closePath();cx.stroke();
+  // sand
+  cx.beginPath();cx.moveTo(-6,-8);cx.lineTo(6,-8);cx.lineTo(1,-2);cx.lineTo(-1,-2);cx.closePath();cx.fill();
+}
+function ld_locket(){ // 💝 locket
+  cx.beginPath();
+  cx.moveTo(0,10);cx.bezierCurveTo(-12,2,-12,-8,-6,-8);
+  cx.bezierCurveTo(-2,-8,0,-4,0,-2);
+  cx.bezierCurveTo(0,-4,2,-8,6,-8);
+  cx.bezierCurveTo(12,-8,12,2,0,10);cx.closePath();cx.stroke();
+}
+function ld_trap(){ // 🪤
+  cx.beginPath();cx.rect(-12,-2,24,8);cx.stroke();
+  cx.beginPath();cx.moveTo(-12,-2);cx.lineTo(-8,-12);cx.lineTo(8,-12);cx.lineTo(12,-2);cx.stroke();
+}
+function ld_megaphone(){ // 📢
+  cx.beginPath();
+  cx.moveTo(-12,-6);cx.lineTo(8,-10);cx.lineTo(8,10);cx.lineTo(-12,6);cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(8,-4);cx.lineTo(12,-4);cx.lineTo(12,4);cx.lineTo(8,4);cx.stroke();
+}
+function ld_brake(){ // 🛑 stop sign / brake
+  cx.beginPath();
+  for(let i=0;i<8;i++){
+    const a=(i/8)*Math.PI*2-Math.PI/8;
+    const x=Math.cos(a)*11,y=Math.sin(a)*11;
+    if(i===0)cx.moveTo(x,y);else cx.lineTo(x,y);
+  }
+  cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(-6,0);cx.lineTo(6,0);cx.stroke();
+}
+function ld_coin(){ // 🪙
+  cx.beginPath();cx.arc(0,0,10,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.arc(0,0,7,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.moveTo(-3,-3);cx.lineTo(3,3);cx.moveTo(3,-3);cx.lineTo(-3,3);cx.stroke();
+}
+function ld_carbon(){ // 📄
+  cx.beginPath();cx.rect(-10,-12,16,24);cx.stroke();
+  cx.beginPath();cx.rect(-6,-8,16,24);cx.stroke();
+}
+function ld_treadmill(){ // 🏃 treadmill
+  cx.beginPath();cx.ellipse(0,4,14,4,0,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.moveTo(-12,0);cx.lineTo(-14,8);cx.moveTo(12,0);cx.lineTo(14,8);cx.stroke();
+}
+function ld_spike(){ // 🦔 / spikes
+  cx.beginPath();
+  for(let i=0;i<7;i++){
+    const x=-12+i*4;
+    cx.moveTo(x,4);cx.lineTo(x+2,-8);cx.lineTo(x+4,4);
+  }
+  cx.stroke();
+  cx.beginPath();cx.moveTo(-14,4);cx.lineTo(14,4);cx.stroke();
+}
+function ld_gear(){ // ⚙️
+  const teeth=10;
+  cx.beginPath();
+  for(let i=0;i<teeth;i++){
+    const a=(i/teeth)*Math.PI*2;
+    const r1=11,r2=14;
+    const a2=a+Math.PI/teeth;
+    cx.lineTo(Math.cos(a)*r1,Math.sin(a)*r1);
+    cx.lineTo(Math.cos(a)*r2,Math.sin(a)*r2);
+    cx.lineTo(Math.cos(a2)*r2,Math.sin(a2)*r2);
+    cx.lineTo(Math.cos(a2)*r1,Math.sin(a2)*r1);
+  }
+  cx.closePath();cx.stroke();
+  cx.beginPath();cx.arc(0,0,4,0,Math.PI*2);cx.stroke();
+}
+function ld_pipe(){ // 🧻
+  cx.beginPath();cx.ellipse(0,-8,10,3,0,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.moveTo(-10,-8);cx.lineTo(-10,10);cx.moveTo(10,-8);cx.lineTo(10,10);cx.stroke();
+  cx.beginPath();cx.ellipse(0,10,10,3,0,0,Math.PI*2);cx.stroke();
+}
+function ld_mat(){ // 🧹 mat/broom
+  cx.beginPath();cx.rect(-12,4,24,4);cx.stroke();
+  cx.beginPath();
+  for(let i=-10;i<=10;i+=3){
+    cx.moveTo(i,8);cx.lineTo(i,12);
+  }
+  cx.stroke();
+}
+function ld_disc(){ // 💿
+  cx.beginPath();cx.arc(0,0,12,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.arc(0,0,3,0,Math.PI*2);cx.stroke();
+  // scratch
+  cx.beginPath();cx.moveTo(-8,-4);cx.lineTo(8,6);cx.stroke();
+}
+function ld_pillow(){ // 🛌
+  cx.beginPath();
+  cx.moveTo(-12,-6);cx.bezierCurveTo(-14,2,14,2,12,-6);
+  cx.bezierCurveTo(14,6,-14,6,-12,-6);cx.stroke();
+}
+function ld_thimble(){ // 🧵 thimble
+  cx.beginPath();
+  cx.moveTo(-7,10);cx.lineTo(-7,-4);cx.bezierCurveTo(-7,-12,7,-12,7,-4);
+  cx.lineTo(7,10);cx.closePath();cx.stroke();
+  cx.beginPath();
+  for(let i=-4;i<=4;i+=2){
+    cx.arc(i,-2,0.8,0,Math.PI*2);cx.moveTo(i+2,-2);
+  }
+  cx.stroke();
+}
+function ld_cup(){ // 🥤 empty cup
+  cx.beginPath();
+  cx.moveTo(-8,-10);cx.lineTo(-6,12);cx.lineTo(6,12);cx.lineTo(8,-10);cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(-8,-6);cx.lineTo(8,-6);cx.stroke();
+}
+function ld_battery(){ // 🪫 dead battery
+  cx.beginPath();cx.rect(-12,-6,22,12);cx.stroke();
+  cx.beginPath();cx.rect(10,-3,3,6);cx.stroke();
+  cx.beginPath();cx.moveTo(-10,-2);cx.lineTo(-6,2);cx.moveTo(-6,-2);cx.lineTo(-10,2);cx.stroke();
+}
+function ld_gate(){ // 🚧 gate
+  cx.beginPath();cx.rect(-14,-10,28,20);cx.stroke();
+  cx.beginPath();
+  cx.moveTo(-14,-10);cx.lineTo(14,10);
+  cx.moveTo(14,-10);cx.lineTo(-14,10);cx.stroke();
+}
+function ld_straw(){ // 🥤 straw - bendy
+  cx.beginPath();cx.moveTo(-3,-12);cx.lineTo(-3,0);cx.lineTo(8,12);cx.stroke();
+  cx.beginPath();cx.moveTo(3,-12);cx.lineTo(3,0);cx.lineTo(14,12);cx.stroke();
+}
+function ld_island(){ // 🏝️
+  cx.beginPath();cx.ellipse(0,8,12,3,0,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.moveTo(0,8);cx.lineTo(2,-4);cx.stroke();
+  cx.beginPath();
+  cx.moveTo(-4,-4);cx.bezierCurveTo(-6,-8,8,-10,4,-4);
+  cx.bezierCurveTo(8,-2,-6,-2,-4,-4);cx.stroke();
+}
+function ld_hook(){ // 🪝
+  cx.beginPath();cx.moveTo(0,-12);cx.lineTo(0,4);cx.stroke();
+  cx.beginPath();cx.arc(-4,4,4,Math.PI*1.7,Math.PI*1,true);cx.stroke();
+  cx.beginPath();cx.moveTo(-2,-12);cx.lineTo(2,-12);cx.stroke();
+}
+function ld_abacus(){ // 🧮
+  cx.beginPath();cx.rect(-12,-10,24,20);cx.stroke();
+  for(let r=0;r<3;r++){
+    const y=-6+r*6;
+    cx.beginPath();cx.moveTo(-12,y);cx.lineTo(12,y);cx.stroke();
+    for(let i=0;i<4;i++){
+      cx.beginPath();cx.arc(-9+i*6,y,1.6,0,Math.PI*2);cx.stroke();
+    }
+  }
+}
+function ld_match(){ // 🧨 firework/match
+  cx.beginPath();cx.moveTo(0,-12);cx.lineTo(0,8);cx.stroke();
+  cx.beginPath();cx.ellipse(0,10,4,3,0,0,Math.PI*2);cx.stroke();
+  // sparks
+  cx.beginPath();
+  cx.moveTo(0,-12);cx.lineTo(-3,-15);
+  cx.moveTo(0,-12);cx.lineTo(3,-15);
+  cx.moveTo(0,-12);cx.lineTo(0,-16);cx.stroke();
+}
+function ld_sponge(){ // 🧽
+  cx.beginPath();cx.rect(-12,-8,24,16);cx.stroke();
+  for(let i=0;i<6;i++){
+    cx.beginPath();
+    cx.arc(-9+(i%3)*9,-4+Math.floor(i/3)*8,1.5,0,Math.PI*2);
+    cx.stroke();
+  }
+}
+function ld_sail(){ // ⛵
+  cx.beginPath();cx.moveTo(-12,8);cx.lineTo(12,8);cx.lineTo(8,12);cx.lineTo(-8,12);cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(0,8);cx.lineTo(0,-12);cx.stroke();
+  cx.beginPath();cx.moveTo(0,-12);cx.lineTo(10,6);cx.lineTo(0,6);cx.closePath();cx.stroke();
+}
+function ld_bandage(){ // 🩹
+  cx.beginPath();cx.save();cx.rotate(-Math.PI/6);
+  cx.rect(-14,-4,28,8);cx.stroke();
+  for(let x=-10;x<=10;x+=5){
+    cx.beginPath();cx.arc(x,-4,0.8,0,Math.PI*2);cx.arc(x,4,0.8,0,Math.PI*2);cx.fill();
+  }
+  cx.restore();
+}
+function ld_vine(){ // 🌿
+  cx.beginPath();
+  cx.moveTo(-10,10);cx.bezierCurveTo(-2,4,-2,-4,10,-10);cx.stroke();
+  // leaves
+  cx.beginPath();
+  cx.ellipse(-6,4,3,2,Math.PI/4,0,Math.PI*2);cx.stroke();
+  cx.beginPath();
+  cx.ellipse(4,-2,3,2,-Math.PI/4,0,Math.PI*2);cx.stroke();
+}
+function ld_snail(){ // 🐌
+  cx.beginPath();cx.arc(-2,2,8,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.arc(-2,2,4,0,Math.PI*2);cx.stroke();
+  cx.beginPath();
+  cx.moveTo(-10,10);cx.lineTo(10,10);cx.lineTo(8,6);cx.stroke();
+  // antennas
+  cx.beginPath();cx.moveTo(8,6);cx.lineTo(10,-2);
+  cx.moveTo(10,-2);cx.arc(10,-3,1,0,Math.PI*2);
+  cx.moveTo(12,6);cx.lineTo(14,-1);cx.stroke();
+}
+function ld_wishbone(){ // 🦴
+  cx.beginPath();
+  cx.moveTo(-8,12);cx.bezierCurveTo(-12,4,-6,-8,0,-8);
+  cx.bezierCurveTo(6,-8,12,4,8,12);cx.stroke();
+  cx.beginPath();cx.arc(-8,12,2,0,Math.PI*2);
+  cx.arc(8,12,2,0,Math.PI*2);cx.stroke();
+}
+function ld_shell(){ // 🐚
+  cx.beginPath();
+  cx.moveTo(0,12);cx.bezierCurveTo(-14,8,-14,-8,0,-12);
+  cx.bezierCurveTo(14,-8,14,8,0,12);cx.stroke();
+  for(let i=0;i<5;i++){
+    const t=i/4;
+    cx.beginPath();
+    cx.moveTo(0,-12+t*4);cx.lineTo(0,12);
+    cx.stroke();
+  }
+}
+function ld_lure(){ // 🪱 / lure
+  cx.beginPath();
+  cx.moveTo(-12,-2);cx.bezierCurveTo(-8,4,8,-4,12,2);cx.stroke();
+  cx.beginPath();cx.arc(-12,-2,1.5,0,Math.PI*2);cx.fill();
+  cx.beginPath();cx.arc(12,2,2,0,Math.PI*2);cx.stroke();
+}
+function ld_scissors(){ // ✂️
+  cx.beginPath();cx.arc(-6,4,4,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.arc(6,4,4,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.moveTo(-3,1);cx.lineTo(8,-12);cx.stroke();
+  cx.beginPath();cx.moveTo(3,1);cx.lineTo(-8,-12);cx.stroke();
+}
+function ld_couch(){ // 🛋️
+  cx.beginPath();cx.rect(-14,-4,28,10);cx.stroke();
+  cx.beginPath();cx.rect(-14,-10,28,8);cx.stroke();
+  cx.beginPath();cx.rect(-16,-6,4,12);cx.stroke();
+  cx.beginPath();cx.rect(12,-6,4,12);cx.stroke();
+}
+function ld_shovel(){ // 🪚 / shovel
+  cx.beginPath();cx.moveTo(0,-14);cx.lineTo(0,4);cx.stroke();
+  cx.beginPath();cx.moveTo(-2,-14);cx.lineTo(2,-14);cx.stroke();
+  cx.beginPath();
+  cx.moveTo(-6,4);cx.lineTo(6,4);cx.lineTo(8,10);cx.lineTo(-8,10);cx.closePath();cx.stroke();
+}
+function ld_paperweight(){ // 📎 paperclip / paperweight
+  cx.beginPath();
+  cx.moveTo(-4,-12);cx.lineTo(-4,8);cx.bezierCurveTo(-4,12,4,12,4,8);
+  cx.lineTo(4,-8);cx.bezierCurveTo(4,-12,-2,-12,-2,-8);cx.lineTo(-2,6);
+  cx.stroke();
+}
+function ld_leak(){ // 🚰 leak
+  cx.beginPath();cx.rect(-8,-12,16,8);cx.stroke();
+  cx.beginPath();cx.moveTo(-3,-4);cx.lineTo(-3,2);cx.lineTo(3,2);cx.lineTo(3,-4);cx.stroke();
+  // drips
+  cx.beginPath();cx.arc(0,8,2,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.arc(-5,12,1.5,0,Math.PI*2);cx.stroke();
+}
+function ld_bell(){ // 🔔
+  cx.beginPath();
+  cx.moveTo(-9,6);cx.bezierCurveTo(-9,-10,9,-10,9,6);cx.lineTo(11,6);cx.lineTo(11,9);cx.lineTo(-11,9);cx.lineTo(-11,6);cx.closePath();cx.stroke();
+  cx.beginPath();cx.arc(0,12,1.5,0,Math.PI*2);cx.stroke();
+}
+function ld_bucket(){ // 🪣
+  cx.beginPath();
+  cx.moveTo(-10,-8);cx.lineTo(-8,10);cx.lineTo(8,10);cx.lineTo(10,-8);cx.closePath();cx.stroke();
+  cx.beginPath();cx.arc(0,-8,10,0,Math.PI,true);cx.stroke();
+}
+function ld_plug(){ // 🔌
+  cx.beginPath();cx.rect(-8,-2,16,12);cx.stroke();
+  cx.beginPath();cx.moveTo(-4,-2);cx.lineTo(-4,-8);cx.moveTo(4,-2);cx.lineTo(4,-8);cx.stroke();
+  cx.beginPath();cx.moveTo(0,10);cx.lineTo(0,14);cx.stroke();
+}
+function ld_cliff(){ // ⚠️ cliff
+  cx.beginPath();
+  cx.moveTo(-14,12);cx.lineTo(0,12);cx.lineTo(0,-8);cx.lineTo(14,-8);cx.stroke();
+}
+function ld_badge(){ // 🪪
+  cx.beginPath();cx.rect(-12,-8,24,16);cx.stroke();
+  cx.beginPath();cx.arc(-6,-2,2,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.moveTo(-2,-3);cx.lineTo(8,-3);
+  cx.moveTo(-2,1);cx.lineTo(8,1);
+  cx.moveTo(-2,5);cx.lineTo(8,5);cx.stroke();
+}
+function ld_rust(){ // ⚙️ rust - gear with marks
+  ld_gear();
+  cx.beginPath();
+  cx.moveTo(-6,-2);cx.lineTo(-2,2);cx.moveTo(2,-2);cx.lineTo(6,2);cx.stroke();
+}
+function ld_pill(){ // 💊
+  cx.beginPath();
+  cx.moveTo(-12,0);cx.bezierCurveTo(-12,-6,-2,-6,-2,0);cx.lineTo(-2,0);
+  cx.moveTo(12,0);cx.bezierCurveTo(12,6,2,6,2,0);
+  cx.stroke();
+  cx.beginPath();
+  cx.rect(-12,-4,12,8);cx.stroke();
+  cx.beginPath();
+  cx.rect(0,-4,12,8);cx.stroke();
+}
+function ld_bridge(){ // 🌉
+  cx.beginPath();cx.moveTo(-14,8);cx.lineTo(14,8);cx.stroke();
+  cx.beginPath();
+  cx.moveTo(-12,8);cx.bezierCurveTo(-8,-4,8,-4,12,8);cx.stroke();
+  // cables
+  cx.beginPath();
+  for(let x=-10;x<=10;x+=4){
+    cx.moveTo(x,2);cx.lineTo(x,8);
+  }
+  cx.stroke();
+}
+function ld_brokenlock(){ // 🔓 broken/open lock
+  cx.beginPath();
+  cx.moveTo(-6,-2);cx.lineTo(-6,-8);
+  cx.bezierCurveTo(-6,-14,6,-14,6,-8);cx.stroke();
+  // Shackle broken — gap at bottom right
+  cx.beginPath();cx.rect(-9,-2,18,14);cx.stroke();
+  // Crack line through body
+  cx.beginPath();cx.moveTo(-7,2);cx.lineTo(7,6);cx.stroke();
+}
+function ld_trophy(){ // 🏆
+  // Cup body
+  cx.beginPath();
+  cx.moveTo(-7,-10);cx.lineTo(7,-10);
+  cx.lineTo(7,0);cx.bezierCurveTo(7,6,-7,6,-7,0);cx.closePath();cx.stroke();
+  // Handles
+  cx.beginPath();cx.arc(-9,-5,3,Math.PI/2,Math.PI*1.5,false);cx.stroke();
+  cx.beginPath();cx.arc(9,-5,3,Math.PI*1.5,Math.PI/2,false);cx.stroke();
+  // Stem and base
+  cx.beginPath();cx.moveTo(0,6);cx.lineTo(0,10);cx.stroke();
+  cx.beginPath();cx.moveTo(-5,12);cx.lineTo(5,12);cx.stroke();
+  cx.beginPath();cx.rect(-7,10,14,2);cx.stroke();
+}
+function ld_fog(){ // 🌁 fog/mist horizontal bands
+  cx.beginPath();
+  cx.moveTo(-13,-6);cx.bezierCurveTo(-6,-9,6,-3,13,-6);cx.stroke();
+  cx.beginPath();
+  cx.moveTo(-13,-1);cx.bezierCurveTo(-6,-4,6,2,13,-1);cx.stroke();
+  cx.beginPath();
+  cx.moveTo(-13,4);cx.bezierCurveTo(-6,1,6,7,13,4);cx.stroke();
+  cx.beginPath();
+  cx.moveTo(-13,9);cx.bezierCurveTo(-6,6,6,12,13,9);cx.stroke();
+}
+function ld_topArrow(){ // 🔝 arrow pointing up with TOP bar
+  // Horizontal bar at top
+  cx.beginPath();cx.moveTo(-12,-10);cx.lineTo(12,-10);cx.stroke();
+  // Vertical shaft
+  cx.beginPath();cx.moveTo(0,-6);cx.lineTo(0,10);cx.stroke();
+  // Arrowhead
+  cx.beginPath();
+  cx.moveTo(-6,0);cx.lineTo(0,-6);cx.lineTo(6,0);cx.stroke();
+}
+function ld_phone(){ // 📱
+  // Phone body
+  cx.beginPath();cx.rect(-7,-12,14,24);cx.stroke();
+  // Screen inside
+  cx.beginPath();cx.rect(-5,-9,10,17);cx.stroke();
+  // Home button at bottom
+  cx.beginPath();cx.arc(0,10,1.2,0,Math.PI*2);cx.stroke();
+  // Speaker at top
+  cx.beginPath();cx.moveTo(-2,-11);cx.lineTo(2,-11);cx.stroke();
+}
+
+// Master emoji -> drawing function map
+const EMOJI_DRAW={
+  '🪨':ld_boulder,'🔨':ld_anvil,'⚓':ld_anchor,'🎭':ld_mask,'⛓️':ld_chain,
+  '🔒':ld_lock,'🔐':ld_lock,'🫣':ld_blindfold,'🙈':ld_blindfold,
+  '💣':ld_bomb,'🏺':ld_vase,'🕸️':ld_cage,'🪞':ld_mirror,'👑':ld_crown,
+  '🧱':ld_brick,'🛡️':ld_shield,'🐕':ld_leash,'🌫️':ld_shroud,
+  '💥':ld_explosion,'🎲':ld_dice,'🔇':ld_earplugs,'🔗':ld_link,
+  '🕳️':ld_drain,'🪓':ld_axe,'🩼':ld_crutch,'❄️':ld_avalanche,
+  '🪦':ld_tombstone,'☁️':ld_cloud,'🗿':ld_stone,'🤐':ld_muzzle,
+  '📿':ld_collar,'🪢':ld_knot,'🪵':ld_log,'🎒':ld_sack,'🎯':ld_dart,
+  '📦':ld_box,'🎈':ld_balloon,'📚':ld_books,'💨':ld_dust,
+  '🤫':ld_whisper,'🚧':ld_fence,'🫧':ld_bubble,'🗄️':ld_filecabinet,
+  '🩴':ld_slipper,'📐':ld_tweezers,'⚱️':ld_ash,'🥛':ld_glass,
+  '⚖️':ld_gavel,'🏹':ld_arrow,'🧊':ld_ice,'⚠️':ld_warning,
+  '💝':ld_locket,'🪤':ld_trap,'📢':ld_megaphone,'🛑':ld_brake,
+  '🪙':ld_coin,'📄':ld_carbon,'🏃':ld_treadmill,'🦔':ld_spike,
+  '⚙️':ld_gear,'🧻':ld_pipe,'⏳':ld_hourglass,'🧹':ld_mat,
+  '💿':ld_disc,'🛌':ld_pillow,'🧵':ld_thimble,'🥤':ld_cup,
+  '🪫':ld_battery,'🚧':ld_gate,'🏝️':ld_island,'🪝':ld_hook,
+  '🧮':ld_abacus,'🧨':ld_match,'🧽':ld_sponge,'⛵':ld_sail,
+  '🩹':ld_bandage,'🌿':ld_vine,'🐌':ld_snail,'🦴':ld_wishbone,
+  '🐚':ld_shell,'🪱':ld_lure,'✂️':ld_scissors,'🛋️':ld_couch,
+  '🪚':ld_shovel,'📎':ld_paperweight,'🚰':ld_leak,'🔔':ld_bell,
+  '🪣':ld_bucket,'🔌':ld_plug,'🪪':ld_badge,'💊':ld_pill,
+  '🌉':ld_bridge,'🐂':ld_anvil,'⏰':ld_hourglass,'🪛':ld_anvil,
+  '📋':ld_carbon,'📒':ld_books,
+  '🔝':ld_topArrow,'🪃':ld_boomerang,'🌁':ld_fog,
+  '🏆':ld_trophy,'🔓':ld_brokenlock,'📱':ld_phone
+};
+
+// Draw the shape in B&W lines. No fills, no color.
+function dShapeLine(b,emoji){
+  T(b,()=>{
+    cx.strokeStyle='#fff';
+    cx.fillStyle='#fff';
+    cx.lineWidth=1.5;
+    cx.lineCap='round';
+    cx.lineJoin='round';
+    const fn=EMOJI_DRAW[emoji];
+    if(fn){
+      fn();
+    }else{
+      // Fallback: simple circle
+      cx.beginPath();cx.arc(0,0,10,0,Math.PI*2);cx.stroke();
+      cx.beginPath();cx.moveTo(-4,-2);cx.lineTo(4,-2);
+      cx.moveTo(-4,2);cx.lineTo(4,2);cx.stroke();
+    }
+  });
+}
+
+// Auto-register shapes for every word in every category
+function registerLineShape(word,emoji,isPos){
+  if(S[word])return;
+  // Body sized to roughly match the line drawing
+  const bodyW=28,bodyH=28;
+  S[word]={
+    kind:isPos?'pos':'neg',
+    label:isPos?'pos:water':'neg',
+    body:(x,y)=>Bodies.rectangle(x,y,bodyW,bodyH,
+      bo(isPos?
+        {density:.0008,friction:.05,frictionAir:.02,restitution:.4,label:'pos:water'}:
+        {label:'neg'})),
+    draw:(b)=>dShapeLine(b,emoji),
+    emoji:emoji
+  };
+}
+// Register positive words with effect-specific bodies
+function registerPosShape(word,effect){
+  if(S[word])return;
+  // Each effect type uses different physics + visual
+  let body, label;
+  if(effect==='water'){
+    // Water drop - small circle, denser, splashes
+    body=(x,y)=>Bodies.circle(x,y,9,bo({density:.0008,friction:.02,frictionAir:.02,restitution:.45,label:'pos:water'}));
+    label='pos:water';
+  }else if(effect==='wave'){
+    // Wave burst - medium circle, very light, ripples wide
+    body=(x,y)=>Bodies.circle(x,y,18,bo({density:.0003,friction:0,frictionAir:.05,restitution:.15,label:'pos:breath'}));
+    label='pos:breath';
+  }else{ // shock
+    // Shock - diamond shape, pushes neighbors strongly
+    body=(x,y)=>Bodies.polygon(x,y,4,12,bo({density:.0015,restitution:.55,label:'pos:spark'}));
+    label='pos:spark';
+  }
+  S[word]={
+    kind:'pos',
+    label:label,
+    effect:effect,
+    body:body,
+    draw:(b)=>dPositive(b,word,effect)
+  };
+}
+
+// Draw positives - water drop, wave burst, or shock star
+function dPositive(b,word,effect){
+  T(b,()=>{
+    cx.strokeStyle='#fff';
+    cx.fillStyle='#fff';
+    cx.lineWidth=1.5;
+    cx.lineCap='round';
+    cx.lineJoin='round';
+    if(effect==='water'){
+      // Water drop - teardrop shape
+      cx.beginPath();
+      cx.moveTo(0,-9);
+      cx.bezierCurveTo(7,-3,7,7,0,8);
+      cx.bezierCurveTo(-7,7,-7,-3,0,-9);
+      cx.closePath();
+      cx.stroke();
+      // highlight
+      cx.beginPath();
+      cx.arc(-2,2,2,0,Math.PI*2);
+      cx.stroke();
+    }else if(effect==='wave'){
+      // Wave burst - concentric ripples
+      cx.globalAlpha=0.5;
+      cx.beginPath();cx.arc(0,0,16,0,Math.PI*2);cx.stroke();
+      cx.globalAlpha=0.7;
+      cx.beginPath();cx.arc(0,0,11,0,Math.PI*2);cx.stroke();
+      cx.globalAlpha=1;
+      cx.beginPath();cx.arc(0,0,6,0,Math.PI*2);cx.stroke();
+    }else{
+      // Shock - 4-pointed star
+      cx.beginPath();
+      cx.moveTo(0,-12);cx.lineTo(3,-3);cx.lineTo(12,0);cx.lineTo(3,3);
+      cx.lineTo(0,12);cx.lineTo(-3,3);cx.lineTo(-12,0);cx.lineTo(-3,-3);
+      cx.closePath();
+      cx.stroke();
+      // inner star
+      cx.beginPath();
+      cx.moveTo(0,-5);cx.lineTo(1,-1);cx.lineTo(5,0);cx.lineTo(1,1);
+      cx.lineTo(0,5);cx.lineTo(-1,1);cx.lineTo(-5,0);cx.lineTo(-1,-1);
+      cx.closePath();
+      cx.fill();
+    }
+  });
+}
+
+// Register all words from all categories with their emojis
+Object.values(CATEGORY_DATA).forEach(d=>{
+  d.words.forEach(w=>registerLineShape(w.name,w.emoji,false));
+  d.pos.forEach(p=>registerPosShape(p.name,p.effect));
+});
+
+// ---------- Game state ----------
+const PH={INTRO:'intro',SHOW:'show',EJECT:'eject',FALL:'fall',CHOICE:'choice',DRAG:'drag',SETTLE:'settle',FULL:'full'};
+const state={
+  phase:PH.INTRO,t:0,category:'self',
+  housing:[],       // {word,x,y,vx,vy,kind} list for animated housing decorations
+  falling:[],       // words traveling from housing to lightbulb
+  choice:[],        // words at the lightbulb
+  drag:null,        // {word,kind,x,y,vx,vy,px,py} attached to finger
+  shapes:[],        // physics shapes inside the brain
+  fx:[],            // visual effects (waves, sparks)
+  flow:0,           // overall flow level (water level) 0..1
+  hitWater:0,       // water from hits (3 hits worth = 0.15)
+  missWater:0,      // water from misses (1 drop worth = 0.02)
+  round:0
+};
+
+// ---------- Round flow ----------
+function pickPair(){
+  // Fisher-Yates shuffle pool. Targets a 5:1 negative-to-positive ratio
+  // so positive water drops appear ~1/5 as often as negative items.
+  // Per category: 100 negs + 100 pos + 3 core pos.
+  // Weights: negs ×5 (500 instances), category pos ×1 (100 instances),
+  //          core pos ×3 (9 instances). Total pos ≈ 109. Ratio ≈ 4.6:1 ≈ 5:1.
+  const d=CATEGORY_DATA[state.category];
+  const pool=[];
+  d.words.forEach(w=>{for(let i=0;i<5;i++)pool.push(w.name);});
+  d.pos.forEach(p=>{pool.push(p.name);});
+  CORE_POS.forEach(w=>{for(let i=0;i<3;i++)pool.push(w);});
+  shuffleArray(pool);
+  const w1=pool[0];
+  let w2=pool[1];
+  let k=2;
+  while(w2===w1&&k<pool.length){w2=pool[k++];}
+  return [w1,w2];
+}
+
+function kindOf(w){
+  return WORD_KIND.get(w)||'neg';
+}
+
+function emojiOf(w){
+  return WORD_EMOJI.get(w)||'';
+}
+
+function populateHousing(){
+  const d=CATEGORY_DATA[state.category];
+  const all=d.words.map(w=>w.name);
+  // Only show a SAMPLE of 12 words per round (not all 100) so the housing
+  // doesn't overwhelm the eye and animations remain visible
+  const shuffled=shuffleArray([...all]);
+  const sample=shuffled.slice(0,12);
+  // Loose grid: 4 cols × 3 rows
+  const N=sample.length;
+  const cols=4,rows=Math.ceil(N/cols);
+  state.housing=sample.map((word,i)=>{
+    const col=i%cols, row=Math.floor(i/cols);
+    const baseX=(col-cols/2+0.5)*(L.HW*0.85/cols);
+    const baseY=(row-rows/2+0.5)*(L.HH*0.85/rows);
+    return{
+      word,
+      kind:'neg',
+      main:i<5,
+      bx:baseX+(Math.random()-0.5)*4,
+      by:baseY+(Math.random()-0.5)*3,
+      phase:Math.random()*Math.PI*2,
+      speed:0.3+Math.random()*0.4
+    };
+  });
+}
+
+function startRound(){
+  state.round++;
+  populateHousing();
+  const [w1,w2]=pickPair();
+  // Both start from housing exit, then split toward left/right of bulb (wide spread)
+  state.falling=[
+    {word:w1,kind:kindOf(w1),x:W*0.5,y:L.HEXIT,vy:0,target:W*0.27},
+    {word:w2,kind:kindOf(w2),x:W*0.5,y:L.HEXIT,vy:0,target:W*0.73}
+  ];
+  state.choice=[];state.drag=null;
+  state.phase=PH.SHOW;state.t=0;
+  updHUD();
+}
+
+function updHUD(){
+  document.getElementById('cat').textContent=CATEGORY_DATA[state.category].label;
+  document.getElementById('ph').textContent={intro:'pick',show:'thinking',eject:'releasing',
+    fall:'falling',choice:'choose',drag:'drag to brain',settle:'settling',full:'overflow'}[state.phase]||'·';
+  const flowPct=Math.min(100,Math.round(state.flow*100));
+  document.getElementById('pct').textContent=flowPct+'%';
+  document.getElementById('fill').style.width=flowPct+'%';
+  // Position the flow bar just below the brain
+  const hudBot=document.getElementById('hudBot');
+  if(L.BB){
+    hudBot.style.top=(L.BB+8)+'px';
+  }
+}
+
+// ---------- Streak popup (addictive feedback for chained positive hits) ----------
+let streakPopTimer=null;
+function showStreakPopup(n){
+  const el=document.getElementById('streakPopup');
+  if(!el)return;
+  // Tier labels for chained hits
+  let label;
+  if(n===2)label='nice · x2';
+  else if(n===3)label='flow · x3';
+  else if(n===4)label='mindful · x4';
+  else if(n===5)label='zen · x5';
+  else if(n>=6)label='enlightened · x'+n;
+  else return;
+  el.textContent=label;
+  el.classList.add('pop');
+  if(streakPopTimer)clearTimeout(streakPopTimer);
+  streakPopTimer=setTimeout(()=>{el.classList.remove('pop');},900);
+}
+
+// ---------- Progress persistence (localStorage) ----------
+// Tracks which categories the player has reached flow state in.
+function loadProgress(){
+  try{
+    const raw=localStorage.getItem('mre_progress_v1');
+    if(!raw)return{cleared:[]};
+    return JSON.parse(raw);
+  }catch(e){return{cleared:[]};}
+}
+function saveProgress(p){
+  try{localStorage.setItem('mre_progress_v1',JSON.stringify(p));}catch(e){}
+}
+function markCategoryCleared(cat){
+  const p=loadProgress();
+  if(!p.cleared.includes(cat)){
+    p.cleared.push(cat);
+    saveProgress(p);
+  }
+  refreshIntroBadges();
+}
+function refreshIntroBadges(){
+  const p=loadProgress();
+  document.querySelectorAll('.gallery-frame[data-cat]').forEach(btn=>{
+    if(p.cleared.includes(btn.dataset.cat)){
+      btn.classList.add('cleared');
+    }else{
+      btn.classList.remove('cleared');
+    }
+  });
+}
+
+// ---------- Phase ticker ----------
+function tickPhase(dt){
+  state.t+=dt;
+  if(state.phase===PH.SHOW){
+    // very short pre-fall display
+    if(state.t>200){state.phase=PH.EJECT;state.t=0;}
+  }else if(state.phase===PH.EJECT){
+    if(state.t>150){state.phase=PH.FALL;state.t=0;}
+  }else if(state.phase===PH.FALL){
+    const targetY=L.BY+L.BR*.3;
+    state.falling.forEach(f=>{
+      f.vy+=1.4*(dt/16.67);
+      f.y+=f.vy*(dt/16.67);
+      f.x+=(f.target-f.x)*0.12;
+    });
+    if(state.falling.every(f=>f.y>=targetY)){
+      state.falling.forEach(f=>{f.y=targetY;f.vy=0;});
+      state.phase=PH.CHOICE;state.t=0;
+      state.choice=state.falling.map(f=>({word:f.word,kind:f.kind,x:f.x,y:f.y,vanish:0}));
+      state.falling=[];
+      updHUD();
+    }
+  }else if(state.phase===PH.SETTLE){
+    const allSettled=state.shapes.length===0||state.shapes.every(s=>s.dead||Math.abs(s.body.velocity.y)<0.6);
+    if(allSettled&&state.t>1200){
+      // Check for overflow
+      const overflow=state.shapes.some(s=>!s.dead&&s.body.position.y<L.BT-10);
+      if(overflow){triggerFull();}else{startRound();}
+    }
+  }
+}
+
+// ---------- Water level update ----------
+function updateFlow(){
+  // 3 hits = 0.15, missed = 0.02 each
+  state.flow=Math.min(1,state.hitWater+state.missWater*0.4);
+  updHUD();
+  if(state.flow>=1&&state.phase!==PH.FULL){
+    triggerFull();
+  }
+}
+
+// ---------- Shape spawning ----------
+function spawnShape(word,x,y,vx,vy){
+  const def=S[word];if(!def)return null;
+  const body=def.body(x,y);
+  Body.setVelocity(body,{x:(vx||0)*0.6,y:(vy||0)*0.6+1});
+  Composite.add(eng.world,body);
+  const s={body,def,word,hits:0,dead:false,kind:def.kind,age:0};
+  state.shapes.push(s);
+  // Trigger atmospheric synapse spark in background neurons
+  sparkBgAt(x,y,100);
+  // Negatives ALSO add water — half as much as positives, because they take up space
+  if(def.kind==='neg'){
+    state.missWater=Math.min(1,state.missWater+0.025);
+    updateFlow();
+  }
+  return s;
+}
+
+function dissolve(s){
+  if(s.dead)return;
+  s.dead=true;
+  for(let i=0;i<12;i++){
+    state.fx.push({type:'burst',x:s.body.position.x,y:s.body.position.y,
+      vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4-1,life:600,c:COL.line});
+  }
+  // Bigger background spark on dissolve - cleansing wave
+  sparkBgAt(s.body.position.x,s.body.position.y,160);
+  Composite.remove(eng.world,s.body);
+  state.hitWater=Math.min(1,state.hitWater+0.05);
+  updateFlow();
+}
+
+function explodeAround(x,y,radius,strength,color){
+  // Push every non-dead body outward from (x,y)
+  state.shapes.forEach(o=>{
+    if(o.dead)return;
+    const dx=o.body.position.x-x,dy=o.body.position.y-y;
+    const d=Math.hypot(dx,dy)||1;
+    if(d<radius){
+      const falloff=1-d/radius;
+      const f=strength*falloff*o.body.mass;
+      Body.applyForce(o.body,o.body.position,{x:dx/d*f,y:dy/d*f-0.001*falloff});
+    }
+  });
+  // visual burst
+  for(let i=0;i<22;i++){
+    const a=Math.random()*Math.PI*2;
+    state.fx.push({type:'burst',x,y,vx:Math.cos(a)*(2+Math.random()*3),vy:Math.sin(a)*(2+Math.random()*3),life:600,c:color||'#fff'});
+  }
+  state.fx.push({type:'wave',x,y,r:0,life:600,c:color||'#fff'});
+}
+
+// ---------- Collisions ----------
+Events.on(eng,'collisionStart',(e)=>{
+  e.pairs.forEach(p=>{
+    handlePair(p.bodyA,p.bodyB);
+    handlePair(p.bodyB,p.bodyA);
+    handleNegNeg(p.bodyA,p.bodyB);
+  });
+});
+function handlePair(a,b){
+  if(!a.label||!a.label.startsWith('pos:'))return;
+  const ps=state.shapes.find(s=>s.body===a);
+  if(!ps||ps.dead)return;
+  
+  if(b.label==='neg'){
+    const ng=state.shapes.find(s=>s.body===b);
+    if(!ng||ng.dead)return;
+    // All positives crack negatives the same (1 hit each, 3 hits dissolves)
+    ng.hits+=1;
+    // STREAK SYSTEM - consecutive hits without missing
+    state.streak=(state.streak||0)+1;
+    if(state.streak>=2){
+      showStreakPopup(state.streak);
+      // Bonus water on streak (small reward to incentivize chains)
+      state.hitWater=Math.min(1,state.hitWater+0.01*Math.min(state.streak,5));
+    }
+    // Wave at impact - PARENTING gets triple-size wave for breath (shock wave rumbles brain)
+    const col=a.label==='pos:water'?COL.water:(a.label==='pos:breath'?COL.breath:'#fff');
+    const waveLife=(state.category==='parenting'&&a.label==='pos:breath')?1500:500;
+    state.fx.push({type:'wave',x:a.position.x,y:a.position.y,r:0,life:waveLife,c:col,
+      tripleSize:state.category==='parenting'&&a.label==='pos:breath'});
+    // Water from successful hit
+    state.hitWater=Math.min(1,state.hitWater+0.05);
+    updateFlow();
+    if(ng.hits>=3)dissolve(ng);
+    // Space-creators explode on impact (breath + spark)
+    // PARENTING triples the wave/explosion radius for breath
+    const breathRadius=(state.category==='parenting')?480:160;
+    const breathStrength=(state.category==='parenting')?0.045:0.022;
+    if(a.label==='pos:breath'){
+      explodeAround(a.position.x,a.position.y,breathRadius,breathStrength,COL.breath);
+    }else if(a.label==='pos:spark'){
+      explodeAround(a.position.x,a.position.y,130,0.020,'#fff');
+    }
+    // Consume the positive
+    Composite.remove(eng.world,a);
+    ps.dead=true;
+  }else if(b.label==='floor'){
+    // Missed - hit the floor - break the streak
+    state.streak=0;
+    const col=a.label==='pos:water'?COL.water:(a.label==='pos:breath'?COL.breath:'#fff');
+    state.fx.push({type:'wave',x:a.position.x,y:a.position.y,r:0,life:400,c:col,small:true});
+    state.missWater=Math.min(1,state.missWater+0.05);
+    updateFlow();
+    Composite.remove(eng.world,a);
+    ps.dead=true;
+  }
+}
+
+// Negative-negative collisions: now JUST a visual ripple — no size changes.
+function handleNegNeg(a,b){
+  if(a.label!=='neg'||b.label!=='neg')return;
+  const sa=state.shapes.find(s=>s.body===a);
+  const sb=state.shapes.find(s=>s.body===b);
+  if(!sa||!sb||sa.dead||sb.dead||sa===sb)return;
+  // Cooldown so we don't spam effects every frame they're touching
+  const now=performance.now();
+  if((sa.lastTouch&&now-sa.lastTouch<800)||(sb.lastTouch&&now-sb.lastTouch<800))return;
+  sa.lastTouch=now;sb.lastTouch=now;
+  // Light ripple at midpoint - no scaling happens
+  const mx=(sa.body.position.x+sb.body.position.x)/2;
+  const my=(sa.body.position.y+sb.body.position.y)/2;
+  state.fx.push({type:'wave',x:mx,y:my,r:0,life:400,c:'rgba(255,180,180,.5)',small:true});
+}
+
+// ---------- Sway and breath force ----------
+function tickForces(dt){
+  state.shapes.forEach(s=>{
+    if(s.dead)return;
+    s.age=(s.age||0)+dt;
+    // Items sway side to side as they stack
+    if(s.kind==='neg'){
+      const sw=Math.sin(performance.now()*.0009+s.body.id*1.7)*0.00010*s.body.mass;
+      Body.applyForce(s.body,s.body.position,{x:sw,y:0});
+    }
+    // Breath dissipates after 2.5s if it never hits anything
+    if(s.def===S['taking a deep breath']&&s.age>2500){
+      state.fx.push({type:'wave',x:s.body.position.x,y:s.body.position.y,r:0,life:500,c:COL.breath,small:true});
+      state.missWater=Math.min(1,state.missWater+0.04);
+      updateFlow();
+      Composite.remove(eng.world,s.body);
+      s.dead=true;
+    }
+    // OFF-SCREEN CLEANUP: if a negative escapes the brain bounds, just remove it (no resizing)
+    if(s.kind==='neg'&&!s.respawned){
+      const py=s.body.position.y;
+      // Only remove if it goes FAR below the brain (out of play entirely)
+      if(py>L.BB+150){
+        s.respawned=true;
+        Composite.remove(eng.world,s.body);
+        s.dead=true;
+      }
+    }
+  });
+}
+
+function tickFx(dt){
+  for(let i=state.fx.length-1;i>=0;i--){
+    const e=state.fx[i];e.life-=dt;
+    if(e.life<=0){state.fx.splice(i,1);continue;}
+    if(e.type==='burst'){
+      e.x+=e.vx*(dt/16.67);e.y+=e.vy*(dt/16.67);e.vy+=.12*(dt/16.67);
+    }else if(e.type==='wave'){
+      e.r+=(dt/16.67)*(e.small?1.5:(e.tripleSize?6:2.5));
+    }
+  }
+  for(let i=state.shapes.length-1;i>=0;i--){
+    if(state.shapes[i].dead)state.shapes.splice(i,1);
+  }
+}
+
+// ---------- Rendering ----------
+// Animated background neural network - dots that pulse and connect with subtle lines.
+// Creates the "cognitive interior" atmosphere behind the gameplay.
+const bgNeurons=[];
+function initBgNeurons(){
+  bgNeurons.length=0;
+  const count=Math.min(36,Math.floor(W*H/14000));
+  for(let i=0;i<count;i++){
+    bgNeurons.push({
+      x:Math.random()*W,
+      y:Math.random()*L.WH,
+      vx:(Math.random()-0.5)*0.06,
+      vy:(Math.random()-0.5)*0.06,
+      r:Math.random()*1.4+0.6,
+      a:Math.random()*0.18+0.05,
+      pulseSpeed:0.015+Math.random()*0.02,
+      pulsePhase:Math.random()*Math.PI*2,
+      glow:0
+    });
+  }
+}
+function bg(){
+  cx.fillStyle='#000';cx.fillRect(0,0,W,H);
+  cx.save();cx.translate(0,-cam.y);
+  // Neural network dots
+  bgNeurons.forEach(n=>{
+    n.pulsePhase+=n.pulseSpeed;
+    n.x+=n.vx;n.y+=n.vy;
+    // Soft wrap on edges
+    if(n.x<-10)n.x=W+10;if(n.x>W+10)n.x=-10;
+    if(n.y<-10)n.y=L.WH+10;if(n.y>L.WH+10)n.y=-10;
+    const alpha=Math.max(0,n.a+Math.sin(n.pulsePhase)*0.06+n.glow);
+    cx.fillStyle=n.glow>0?`rgba(79,195,247,${alpha})`:`rgba(255,255,255,${alpha})`;
+    cx.beginPath();cx.arc(n.x,n.y,n.r+n.glow*2,0,Math.PI*2);cx.fill();
+    if(n.glow>0)n.glow=Math.max(0,n.glow-0.008);
+  });
+  // Connecting lines between near neurons
+  cx.lineWidth=0.5;
+  for(let i=0;i<bgNeurons.length;i++){
+    const a=bgNeurons[i];
+    for(let j=i+1;j<bgNeurons.length;j++){
+      const b=bgNeurons[j];
+      const dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy);
+      if(d<90){
+        const alpha=(1-d/90)*0.08;
+        const glowing=a.glow>0||b.glow>0;
+        cx.strokeStyle=glowing?`rgba(79,195,247,${alpha*3})`:`rgba(255,255,255,${alpha})`;
+        cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke();
+      }
+    }
+  }
+  cx.restore();
+}
+// Trigger a localized synapse spark at a position (called when shapes spawn or dissolve)
+function sparkBgAt(x,y,radius){
+  radius=radius||120;
+  bgNeurons.forEach(n=>{
+    if(Math.hypot(n.x-x,n.y-y)<radius){
+      n.glow=Math.min(0.6,n.glow+0.3);
+      const dx=n.x-x,dy=n.y-y,d=Math.hypot(dx,dy)||1;
+      n.vx+=(dx/d)*0.4;n.vy+=(dy/d)*0.4;
+    }
+  });
+}
+function hLabel(x,y,l){
+  cx.fillStyle=COL.dim;cx.font='300 9px monospace';cx.textAlign='center';
+  cx.fillText(l.toUpperCase(),x,y);
+}
+// Wrap a word/phrase into multiple lines, breaking at spaces if longer than max chars per line
+function wrapWord(word,maxChars){
+  if(word.length<=maxChars)return [word];
+  const parts=word.split(' ');
+  const lines=[];
+  let cur='';
+  parts.forEach(p=>{
+    if(!cur){cur=p;}
+    else if((cur+' '+p).length<=maxChars){cur+=' '+p;}
+    else{lines.push(cur);cur=p;}
+  });
+  if(cur)lines.push(cur);
+  return lines;
+}
+
+function drawHousingWord(hw,bx,by,extraAlpha){
+  const t=performance.now()*.001;
+  const x=W/2+hw.bx+Math.sin(t*hw.speed+hw.phase)*3;
+  const y=L.HC+hw.by+Math.cos(t*hw.speed*0.7+hw.phase)*2;
+  cx.globalAlpha=(extraAlpha||1)*(hw.main?1:0.75);
+  cx.fillStyle=hw.kind==='pos'?COL.water:'rgba(255,255,255,.85)';
+  cx.font=(hw.main?'500':'400')+' 7px monospace';
+  cx.textAlign='center';
+  // Full word stacked across multiple lines if long
+  const lines=wrapWord(hw.word.toUpperCase(),14);
+  const lineH=8;
+  const startY=y-(lines.length-1)*lineH/2;
+  lines.forEach((ln,i)=>{
+    cx.fillText(ln,x,startY+i*lineH);
+  });
+  cx.globalAlpha=1;
+}
+
+// ---------- UNIFIED HOUSING (all 5 categories use the same emoji-grid layout) ----------
+function drawHousing(){
+  const c=W/2,cy=L.HC,w=L.HW,h=L.HH;
+  // Use original category-specific housing designs
+  if(state.category==='self')hSelf(c,cy,w,h);
+  else if(state.category==='parenting')hParent(c,cy,w,h);
+  else if(state.category==='engineer')hSoft(c,cy,w,h);
+  else if(state.category==='senior')hSenior(c,cy,w,h);
+  else if(state.category==='quantum')hQuantum(c,cy,w,h);
+}
+
+// Minimal decorative frames
+function drawSelfFrame(c,cy,w,h){
+  const y=cy-h*.5;
+  cx.strokeStyle='rgba(255,255,255,.18)';cx.lineWidth=1;
+  cx.beginPath();cx.rect(c-w*.49,y+2,w*.98,h*.96);cx.stroke();
+  cx.fillStyle=COL.dim;cx.font='300 9px monospace';cx.textAlign='center';
+  cx.fillText(CATEGORY_DATA[state.category].label.toUpperCase(),c,y-4);
+}
+function drawHouseFrame(c,cy,w,h){
+  cx.strokeStyle='rgba(255,255,255,.30)';cx.lineWidth=1.2;
+  const x=c-w/2,y=cy-h/2;
+  cx.beginPath();
+  cx.moveTo(x+10,y+h*.20);cx.lineTo(c,y+5);cx.lineTo(x+w-10,y+h*.20);cx.stroke();
+  cx.beginPath();cx.rect(x+10,y+h*.20,w-20,h*.78);cx.stroke();
+  cx.fillStyle=COL.dim;cx.font='300 9px monospace';cx.textAlign='center';
+  cx.fillText('PARENTING',c,y-2);
+}
+function drawGearFrame(c,cy,w,h){
+  const t=performance.now()*.0008;
+  cx.strokeStyle='rgba(255,255,255,.25)';cx.lineWidth=1.1;
+  [[c-w*.35,cy-h*.30,18],[c+w*.35,cy-h*.30,15],[c-w*.35,cy+h*.30,15],[c+w*.35,cy+h*.30,18]].forEach((g,i)=>{
+    cx.save();cx.translate(g[0],g[1]);cx.rotate(t*(i%2?1:-1));
+    cx.beginPath();
+    for(let j=0;j<10;j++){
+      const a=(j/10)*Math.PI*2,r1=g[2],r2=g[2]+3;
+      cx.lineTo(Math.cos(a)*r1,Math.sin(a)*r1);
+      cx.lineTo(Math.cos(a)*r2,Math.sin(a)*r2);
+    }
+    cx.closePath();cx.stroke();
+    cx.beginPath();cx.arc(0,0,g[2]*.4,0,Math.PI*2);cx.stroke();
+    cx.restore();
+  });
+  cx.fillStyle=COL.dim;cx.font='300 9px monospace';cx.textAlign='center';
+  cx.fillText('ENGINEERING',c,cy-h*.5-2);
+}
+function drawHorizonFrame(c,cy,w,h){
+  // Ocean theme with rolling waves spread across full width
+  const horizonY=cy-h*0.30;
+  const oceanBot=cy+h*0.50;
+  const tt=performance.now()*.001;
+  // sun
+  cx.strokeStyle='rgba(255,180,80,.5)';cx.lineWidth=1.2;
+  cx.beginPath();cx.arc(c,horizonY,22,Math.PI,0,false);cx.stroke();
+  for(let i=0;i<7;i++){
+    const a=Math.PI+(i+.5)/7*Math.PI;
+    const r1=28,r2=36+Math.sin(tt*2+i)*3;
+    cx.beginPath();
+    cx.moveTo(c+Math.cos(a)*r1,horizonY+Math.sin(a)*r1);
+    cx.lineTo(c+Math.cos(a)*r2,horizonY+Math.sin(a)*r2);
+    cx.stroke();
+  }
+  cx.strokeStyle='rgba(255,255,255,.30)';
+  cx.beginPath();cx.moveTo(c-w/2,horizonY);cx.lineTo(c+w/2,horizonY);cx.stroke();
+  // Rolling waves
+  cx.lineWidth=1;
+  for(let row=0;row<6;row++){
+    const t2=row/5;
+    const yy=horizonY+15+t2*(oceanBot-horizonY-15);
+    cx.strokeStyle='rgba(79,195,247,'+(0.18+t2*0.30)+')';
+    cx.beginPath();
+    const wobAmp=2+t2*4,wobFreq=0.05+t2*0.02,wobPhase=tt*(1+t2*0.6);
+    for(let xx=c-w/2;xx<=c+w/2;xx+=3){
+      const wave=Math.sin(xx*wobFreq+wobPhase+row*0.5)*wobAmp;
+      if(xx===c-w/2)cx.moveTo(xx,yy+wave);
+      else cx.lineTo(xx,yy+wave);
+    }
+    cx.stroke();
+  }
+  cx.fillStyle=COL.dim;cx.font='300 9px monospace';cx.textAlign='center';
+  cx.fillText('RETIREMENT',c,horizonY-30);
+}
+function drawQuantumFrame(c,cy,w,h){
+  const t=performance.now()*.001;
+  cx.strokeStyle='rgba(180,150,255,.30)';cx.lineWidth=1;
+  // Two orbiting dots representing quantum nodes
+  for(let i=0;i<2;i++){
+    const a=t*(i?1.3:-0.9)+i*Math.PI;
+    const dx=Math.cos(a)*w*.40, dy=Math.sin(a)*h*.30;
+    cx.beginPath();cx.arc(c+dx,cy+dy,4,0,Math.PI*2);
+    cx.fillStyle='rgba(180,150,255,.6)';cx.fill();
+  }
+  // central node
+  cx.beginPath();cx.arc(c,cy,3,0,Math.PI*2);
+  cx.fillStyle=COL.water;cx.fill();
+  cx.fillStyle=COL.dim;cx.font='300 9px monospace';cx.textAlign='center';
+  cx.fillText('QUANTUM LEAP',c,cy-h*.5-2);
+}
+
+// SELF: figure with floating words it "grabs"
+function hSelf(c,cy,w,h){
+  const y=cy-h*.5;
+  // floating words drift around the figure
+  state.housing.forEach((hw)=>{
+    drawHousingWord(hw);
+  });
+  // FIGURE with more character — slight breathing + walking
+  const t=performance.now()*.002;
+  const breath=Math.sin(t)*1;
+  const armSwing=Math.sin(t*1.4);
+  const legShift=Math.sin(t*1.4);
+  cx.strokeStyle=COL.line;cx.lineWidth=1.5;
+  cx.fillStyle='rgba(0,0,0,.6)';
+  
+  // grad cap with tassel
+  cx.beginPath();
+  cx.moveTo(c-14,y+22);cx.lineTo(c,y+14);cx.lineTo(c+14,y+22);cx.lineTo(c,y+30);
+  cx.closePath();cx.fill();cx.stroke();
+  cx.beginPath();cx.moveTo(c,y+22);cx.lineTo(c+12,y+27);cx.lineTo(c+12,y+38);cx.stroke();
+  cx.beginPath();cx.arc(c+12,y+39,1.5,0,Math.PI*2);cx.fillStyle=COL.line;cx.fill();
+  cx.fillStyle='rgba(0,0,0,.6)';
+  
+  // HEAD with chin
+  cx.beginPath();
+  cx.arc(c,y+42+breath*0.5,8,0,Math.PI*2);
+  cx.fill();cx.stroke();
+  // ear hint
+  cx.beginPath();cx.arc(c+7,y+43,1.3,0,Math.PI*2);cx.stroke();
+  // FACE - eyes + determined mouth
+  cx.fillStyle=COL.line;
+  cx.beginPath();cx.arc(c-3,y+41,1,0,Math.PI*2);cx.arc(c+2,y+41,1,0,Math.PI*2);cx.fill();
+  cx.lineWidth=1.2;
+  cx.beginPath();cx.moveTo(c-2,y+45);cx.lineTo(c+2,y+45);cx.stroke();
+  // brow
+  cx.beginPath();cx.moveTo(c-5,y+38);cx.lineTo(c-1,y+39);
+  cx.moveTo(c+0,y+39);cx.lineTo(c+4,y+38);cx.stroke();
+  cx.lineWidth=1.5;
+  cx.fillStyle='rgba(0,0,0,.6)';
+  
+  // NECK
+  cx.beginPath();cx.moveTo(c-2,y+50);cx.lineTo(c-2,y+53);
+  cx.lineTo(c+2,y+53);cx.lineTo(c+2,y+50);cx.stroke();
+  
+  // TORSO (slightly tapered jacket shape)
+  cx.beginPath();
+  cx.moveTo(c-9,y+54);cx.lineTo(c-8,y+88);cx.lineTo(c+8,y+88);cx.lineTo(c+9,y+54);
+  cx.closePath();cx.fill();cx.stroke();
+  // jacket lapel
+  cx.lineWidth=1;
+  cx.beginPath();
+  cx.moveTo(c,y+54);cx.lineTo(c-4,y+62);cx.lineTo(c,y+70);cx.lineTo(c+4,y+62);cx.lineTo(c,y+54);
+  cx.stroke();
+  cx.lineWidth=1.5;
+  
+  // ARMS — one reaches up (grabbing words), other swings
+  cx.save();
+  cx.translate(c-9,y+57);
+  cx.rotate(-0.9+armSwing*0.4);
+  cx.beginPath();cx.moveTo(0,0);cx.lineTo(0,18);cx.lineTo(3,28);cx.stroke();
+  // hand grabbing
+  cx.beginPath();cx.arc(3,30,2.5,0,Math.PI*2);cx.fillStyle=COL.line;cx.fill();
+  cx.restore();
+  // flex arm with bicep
+  cx.save();
+  cx.translate(c+9,y+57);
+  cx.rotate(0.5-armSwing*0.3);
+  cx.beginPath();cx.moveTo(0,0);cx.lineTo(0,12);cx.lineTo(-7,20);cx.stroke();
+  // bicep bulge
+  cx.beginPath();cx.ellipse(-2,8,3.5,2.5,-0.3,0,Math.PI*2);cx.stroke();
+  cx.restore();
+  
+  // LEGS (walking)
+  cx.beginPath();
+  cx.moveTo(c-4,y+88);cx.lineTo(c-6+legShift*2,y+102);cx.lineTo(c-7+legShift*2,y+112);cx.stroke();
+  cx.beginPath();
+  cx.moveTo(c+4,y+88);cx.lineTo(c+6-legShift*2,y+102);cx.lineTo(c+7-legShift*2,y+112);cx.stroke();
+  // shoes
+  cx.beginPath();cx.ellipse(c-7+legShift*2,y+113,3,1.5,0,0,Math.PI*2);cx.fillStyle=COL.line;cx.fill();
+  cx.beginPath();cx.ellipse(c+7-legShift*2,y+113,3,1.5,0,0,Math.PI*2);cx.fill();
+  cx.fillStyle='rgba(0,0,0,.6)';
+  
+  // MONEY IN POCKET
+  cx.strokeStyle='#7FE57F';
+  cx.lineWidth=1.3;
+  cx.beginPath();cx.rect(c+1,y+74,8,12);cx.stroke();
+  cx.fillStyle='#7FE57F';cx.font='500 7px monospace';cx.textAlign='center';
+  cx.fillText('$',c+5,y+82);
+  
+  hLabel(c,y+6,'ascent');
+}
+
+// PARENTING: house with words as family members bouncing inside, door opens on eject
+function hParent(c,cy,w,h){
+  cx.strokeStyle=COL.line;cx.lineWidth=1.4;
+  const x=c-w/2,y=cy-h/2;
+  const roofY=y+h*.28;
+  
+  // CHIMNEY (top right)
+  cx.beginPath();cx.rect(c+w*.18,y+8,12,18);cx.fill();cx.stroke();
+  // smoke puffs
+  const t=performance.now()*.001;
+  cx.strokeStyle='rgba(255,255,255,.3)';
+  for(let i=0;i<3;i++){
+    const sy=y+8-i*6-Math.sin(t+i)*2;
+    cx.beginPath();cx.arc(c+w*.18+6+Math.cos(t+i)*3,sy,3-i*0.5,0,Math.PI*2);cx.stroke();
+  }
+  cx.strokeStyle=COL.line;
+  
+  // ROOF (peaked) with shingle lines
+  cx.beginPath();cx.moveTo(x+6,roofY);cx.lineTo(c,y+10);cx.lineTo(x+w-6,roofY);cx.stroke();
+  cx.strokeStyle='rgba(255,255,255,.25)';
+  cx.lineWidth=1;
+  for(let i=1;i<4;i++){
+    const t2=i/4;
+    cx.beginPath();
+    cx.moveTo(x+6+t2*((c-x-6)),roofY-t2*(roofY-y-10));
+    cx.lineTo(x+w-6-t2*((x+w-6-c)),roofY-t2*(roofY-y-10));
+    cx.stroke();
+  }
+  cx.strokeStyle=COL.line;
+  cx.lineWidth=1.4;
+  
+  // WALLS with brick texture
+  cx.beginPath();cx.rect(x+10,roofY,w-20,h*.68);cx.stroke();
+  cx.strokeStyle='rgba(255,255,255,.15)';
+  cx.lineWidth=1;
+  for(let row=0;row<6;row++){
+    const yy=roofY+8+row*((h*.68-8)/6);
+    cx.beginPath();cx.moveTo(x+10,yy);cx.lineTo(x+w-10,yy);cx.stroke();
+    // staggered vertical lines
+    const offset=row%2===0?0:14;
+    for(let xx=x+10+offset;xx<x+w-10;xx+=28){
+      cx.beginPath();cx.moveTo(xx,yy);cx.lineTo(xx,yy+((h*.68-8)/6));cx.stroke();
+    }
+  }
+  cx.strokeStyle=COL.line;
+  cx.lineWidth=1.4;
+  
+  // WINDOWS (left & right with crossbars and shutters)
+  [c-w*.26,c+w*.26].forEach(wx=>{
+    const wy=roofY+18;
+    cx.beginPath();cx.rect(wx-10,wy,20,18);cx.stroke();
+    cx.strokeStyle='rgba(255,255,255,.4)';
+    cx.lineWidth=1;
+    cx.beginPath();
+    cx.moveTo(wx,wy);cx.lineTo(wx,wy+18);
+    cx.moveTo(wx-10,wy+9);cx.lineTo(wx+10,wy+9);
+    cx.stroke();
+    // shutters
+    cx.strokeStyle=COL.line;cx.lineWidth=1;
+    cx.beginPath();cx.rect(wx-14,wy,3,18);cx.stroke();
+    cx.beginPath();cx.rect(wx+11,wy,3,18);cx.stroke();
+    cx.lineWidth=1.4;
+  });
+  
+  // DOOR (animates open during eject/fall)
+  const doorOpen=(state.phase===PH.EJECT||state.phase===PH.FALL)?Math.min(1,state.t/300):0;
+  cx.save();
+  cx.translate(c-12,y+h-28);
+  cx.rotate(-doorOpen*0.7);
+  cx.beginPath();cx.rect(0,0,24,26);cx.fill();cx.stroke();
+  // door knob
+  cx.beginPath();cx.arc(20,13,1.3,0,Math.PI*2);cx.fillStyle=COL.line;cx.fill();
+  cx.fillStyle='rgba(0,0,0,.6)';
+  // door panels
+  cx.strokeStyle='rgba(255,255,255,.35)';cx.lineWidth=1;
+  cx.beginPath();cx.rect(3,3,18,9);cx.stroke();
+  cx.beginPath();cx.rect(3,14,18,9);cx.stroke();
+  cx.strokeStyle=COL.line;cx.lineWidth=1.4;
+  cx.restore();
+  
+  // STEPS at door
+  cx.beginPath();
+  cx.moveTo(c-16,y+h-2);cx.lineTo(c+16,y+h-2);cx.stroke();
+  cx.beginPath();
+  cx.moveTo(c-19,y+h+1);cx.lineTo(c+19,y+h+1);cx.stroke();
+  
+  // WORDS as family inside, running around — SPREAD OUT, not congested
+  cx.font='500 7.5px monospace';cx.textAlign='center';
+  state.housing.forEach(hw=>{
+    const tt=performance.now()*.001;
+    // Use full grid position with light bob, no big movement that causes overlap
+    const wx=c+(hw.bx*0.95)+Math.sin(tt*hw.speed+hw.phase)*5;
+    const wy=cy+(hw.by*0.80)+Math.cos(tt*hw.speed*1.2+hw.phase)*3;
+    // Clamp to inside house
+    const cxp=Math.max(x+24,Math.min(x+w-24,wx));
+    const cyp=Math.max(roofY+12,Math.min(y+h-36,wy));
+    cx.fillStyle=hw.kind==='pos'?COL.water:COL.line;
+    cx.globalAlpha=hw.main?1:0.7;
+    cx.fillText(hw.word.toUpperCase(),cxp,cyp);
+    cx.globalAlpha=1;
+    // small running legs (shorter so less visual clutter)
+    cx.strokeStyle=hw.kind==='pos'?COL.water:COL.line;
+    cx.lineWidth=0.8;
+    const lp=tt*5+hw.phase;
+    cx.beginPath();
+    cx.moveTo(cxp-2,cyp+2);cx.lineTo(cxp-2.5+Math.sin(lp)*1.5,cyp+5);
+    cx.moveTo(cxp+2,cyp+2);cx.lineTo(cxp+2.5+Math.sin(lp+Math.PI)*1.5,cyp+5);
+    cx.stroke();
+  });
+  cx.lineWidth=1.4;
+  hLabel(c,y-2,'home');
+}
+
+// SOFTWARE: gears with words written on them, jam during eject
+function hSoft(c,cy,w,h){
+  cx.strokeStyle=COL.line;cx.lineWidth=1.3;
+  const isJam=state.phase===PH.EJECT;
+  const t=performance.now()*.0008;
+  const gs=[
+    {x:c-42,y:cy-16,r:28,sp:1,word:state.housing[0]},
+    {x:c+36,y:cy-4,r:24,sp:-1.3,word:state.housing[1]},
+    {x:c-6,y:cy+30,r:22,sp:1.5,word:state.housing[2]},
+    {x:c+40,y:cy+34,r:18,sp:-1.0,word:state.housing[3]}
+  ];
+  gs.forEach((g,gi)=>{
+    if(!g.word)return;
+    const rot=isJam?Math.sin(performance.now()*.04)*0.05:t*g.sp;
+    cx.save();cx.translate(g.x,g.y);cx.rotate(rot);
+    cx.beginPath();
+    for(let i=0;i<12;i++){
+      const a=(i/12)*Math.PI*2,r1=g.r,r2=g.r+4,a2=a+Math.PI/12;
+      cx.lineTo(Math.cos(a)*r1,Math.sin(a)*r1);cx.lineTo(Math.cos(a)*r2,Math.sin(a)*r2);
+      cx.lineTo(Math.cos(a2)*r2,Math.sin(a2)*r2);cx.lineTo(Math.cos(a2)*r1,Math.sin(a2)*r1);
+    }
+    cx.closePath();cx.stroke();
+    cx.beginPath();cx.arc(0,0,g.r*.5,0,Math.PI*2);cx.stroke();
+    // counter-rotate text for legibility
+    cx.rotate(-rot);
+    cx.fillStyle=g.word.kind==='pos'?COL.water:COL.line;
+    cx.font='500 7px monospace';cx.textAlign='center';
+    cx.fillText(g.word.word.toUpperCase(),0,2);
+    cx.restore();
+  });
+  // sparks when jamming
+  if(isJam){
+    for(let i=0;i<3;i++){
+      const sx=c+(Math.random()-0.5)*60;
+      const sy=cy+(Math.random()-0.5)*40;
+      cx.fillStyle='#FFD86B';
+      cx.beginPath();cx.arc(sx,sy,1.5,0,Math.PI*2);cx.fill();
+    }
+  }
+  // extra words floating around
+  for(let i=4;i<state.housing.length;i++){
+    drawHousingWord(state.housing[i]);
+  }
+  hLabel(c,cy-h*.5,'engineering');
+}
+
+// SENIOR: sunrise + beach with letters; tide takes words on eject
+function hSenior(c,cy,w,h){
+  // OCEAN VIEW with rolling waves; words bob on the water surface, well-spaced
+  const horizonY=cy-h*0.30;
+  const oceanTop=horizonY;
+  const oceanBot=cy+h*0.45;
+  const tt=performance.now()*.001;
+  
+  // Sky background gradient suggestion
+  cx.fillStyle='rgba(255,180,80,.06)';
+  cx.fillRect(c-w/2,cy-h/2,w,horizonY-(cy-h/2));
+  
+  // Rising sun on horizon
+  cx.strokeStyle=COL.line;cx.lineWidth=1.4;
+  cx.beginPath();
+  cx.arc(c,horizonY,24,Math.PI,0,false);
+  cx.stroke();
+  // sun rays
+  cx.strokeStyle='rgba(255,180,80,.4)';
+  cx.lineWidth=1;
+  for(let i=0;i<7;i++){
+    const a=Math.PI+(i+.5)/7*Math.PI;
+    const r1=30,r2=38+Math.sin(tt*2+i)*3;
+    cx.beginPath();
+    cx.moveTo(c+Math.cos(a)*r1,horizonY+Math.sin(a)*r1);
+    cx.lineTo(c+Math.cos(a)*r2,horizonY+Math.sin(a)*r2);
+    cx.stroke();
+  }
+  
+  // Horizon line
+  cx.strokeStyle=COL.line;
+  cx.lineWidth=1.2;
+  cx.beginPath();cx.moveTo(c-w/2,horizonY);cx.lineTo(c+w/2,horizonY);cx.stroke();
+  
+  // OCEAN — multiple rolling wave lines, animated
+  cx.lineWidth=1;
+  for(let row=0;row<6;row++){
+    const t2=row/5;
+    const yy=horizonY+15+t2*(oceanBot-horizonY-15);
+    const alpha=0.18+t2*0.30;
+    cx.strokeStyle='rgba(79,195,247,'+alpha+')';
+    cx.beginPath();
+    const wobAmp=2+t2*5;
+    const wobFreq=0.05+t2*0.02;
+    const wobPhase=tt*(1+t2*0.6);
+    for(let xx=c-w/2;xx<=c+w/2;xx+=3){
+      const wave=Math.sin(xx*wobFreq+wobPhase+row*0.5)*wobAmp;
+      const y2=yy+wave;
+      if(xx===c-w/2)cx.moveTo(xx,y2);
+      else cx.lineTo(xx,y2);
+    }
+    cx.stroke();
+  }
+  
+  // Foam ripples here and there
+  cx.fillStyle='rgba(255,255,255,.35)';
+  for(let i=0;i<8;i++){
+    const fx=c-w/2+((i/8)*w)+Math.sin(tt+i)*10;
+    const fy=horizonY+20+(i%3)*((oceanBot-horizonY-20)/3)+Math.cos(tt*2+i)*3;
+    cx.beginPath();cx.arc(fx,fy,1.2,0,Math.PI*2);cx.fill();
+  }
+  
+  // WORDS bobbing on the ocean surface — well spread
+  // Use bx/by grid positions but constrain to ocean area
+  cx.font='500 8px monospace';cx.textAlign='center';
+  state.housing.forEach((hw,i)=>{
+    const baseX=c+hw.bx*1.05;
+    // Map y position to ocean band, distribute evenly through ocean
+    const oceanH=oceanBot-horizonY-10;
+    const yT=((hw.by/(L.HH*0.5))+1)/2; // normalize to 0..1
+    const baseY=horizonY+15+yT*oceanH;
+    // bob on the wave
+    const localWave=Math.sin(baseX*0.05+tt*1.2+hw.phase)*4;
+    const xWob=Math.cos(tt*0.5+hw.phase)*4;
+    const xp=baseX+xWob;
+    const yp=baseY+localWave;
+    cx.fillStyle=hw.kind==='pos'?COL.water:COL.line;
+    cx.globalAlpha=hw.main?1:0.75;
+    cx.fillText(hw.word.toUpperCase(),xp,yp);
+    cx.globalAlpha=1;
+    // tiny ripple under each word
+    cx.strokeStyle='rgba(79,195,247,.3)';
+    cx.lineWidth=0.8;
+    cx.beginPath();
+    cx.ellipse(xp,yp+5,12,1.5,0,0,Math.PI*2);
+    cx.stroke();
+  });
+  cx.lineWidth=1.3;
+  hLabel(c,horizonY-26,'horizon');
+}
+
+// QUANTUM: words sliding side to side between dots
+function hQuantum(c,cy,w,h){
+  cx.strokeStyle=COL.line;cx.lineWidth=1.3;
+  const lx=c-w*.32,rx=c+w*.32;
+  // dots
+  cx.beginPath();cx.arc(lx,cy,6,0,Math.PI*2);cx.fillStyle=COL.line;cx.fill();
+  cx.beginPath();cx.arc(rx,cy,6,0,Math.PI*2);cx.fill();
+  // central node
+  cx.beginPath();cx.arc(c,cy,4,0,Math.PI*2);cx.fillStyle=COL.water;cx.fill();
+  // tubes (curved)
+  cx.strokeStyle=COL.line;
+  cx.beginPath();cx.moveTo(c-22,cy-h*.32);
+  cx.bezierCurveTo(lx,cy-30,lx-12,cy-15,lx-3,cy-7);cx.stroke();
+  cx.beginPath();cx.moveTo(c+22,cy+h*.32);
+  cx.bezierCurveTo(rx,cy+30,rx+12,cy+15,rx+3,cy+7);cx.stroke();
+  // particle flow
+  const tt=performance.now()*.002;
+  for(let i=0;i<4;i++){
+    const p=(tt+i/4)%1;
+    const x1=(c-22)+(lx-(c-22))*p,y1=(cy-h*.32)+(cy-(cy-h*.32))*(p*p);
+    cx.beginPath();cx.arc(x1,y1,1.4,0,Math.PI*2);cx.fillStyle=COL.water;cx.fill();
+    const x2=(c+22)+(rx-(c+22))*p,y2=(cy+h*.32)+(cy-(cy+h*.32))*(p*p);
+    cx.beginPath();cx.arc(x2,y2,1.4,0,Math.PI*2);cx.fillStyle=COL.red;cx.fill();
+  }
+  // words sliding side to side
+  cx.font='500 8px monospace';cx.textAlign='center';
+  state.housing.forEach((hw,i)=>{
+    const t=performance.now()*.0006;
+    // moves left-right, wraps
+    const phase=(t*hw.speed+hw.phase)%(Math.PI*2);
+    const xx=c+Math.sin(phase)*(w*.32);
+    const yy=cy+hw.by*0.4;
+    cx.fillStyle=hw.kind==='pos'?COL.water:COL.line;
+    cx.globalAlpha=0.85+Math.cos(phase)*0.15;
+    cx.fillText(hw.word.toUpperCase(),xx,yy);
+    cx.globalAlpha=1;
+  });
+  hLabel(c,cy-h*.5,'quantum');
+}
+
+// ---------- LIGHTBULB (more bulb-like) ----------
+function drawBulb(){
+  const c=W/2,cy=L.BY,r=L.BR;
+  // hanging wire
+  cx.strokeStyle=COL.faint;cx.lineWidth=1;
+  cx.beginPath();cx.moveTo(c,L.HEXIT+20);cx.lineTo(c,cy-r-22);cx.stroke();
+  
+  // BASE (screw threads)
+  cx.strokeStyle=COL.line;cx.lineWidth=1.2;
+  // top of base (flat ring)
+  cx.beginPath();
+  cx.moveTo(c-14,cy-r-22);cx.lineTo(c+14,cy-r-22);
+  cx.lineTo(c+12,cy-r-18);cx.lineTo(c-12,cy-r-18);cx.closePath();cx.stroke();
+  // screw threads
+  for(let i=0;i<3;i++){
+    cx.beginPath();
+    cx.moveTo(c-12+i,cy-r-16+i*3);
+    cx.lineTo(c+12-i,cy-r-16+i*3);
+    cx.stroke();
+  }
+  // narrow neck
+  cx.beginPath();
+  cx.moveTo(c-9,cy-r-8);
+  cx.bezierCurveTo(c-9,cy-r-2,c-r*.6,cy-r*.5,c-r*.75,cy-r*.1);
+  cx.stroke();
+  cx.beginPath();
+  cx.moveTo(c+9,cy-r-8);
+  cx.bezierCurveTo(c+9,cy-r-2,c+r*.6,cy-r*.5,c+r*.75,cy-r*.1);
+  cx.stroke();
+  
+  // BULB (round teardrop, more spherical)
+  cx.lineWidth=1.4;
+  cx.beginPath();
+  cx.moveTo(c-r*.75,cy-r*.1);
+  cx.bezierCurveTo(c-r*1.05,cy+r*.3,c-r*0.85,cy+r*.85,c,cy+r*.85);
+  cx.bezierCurveTo(c+r*0.85,cy+r*.85,c+r*1.05,cy+r*.3,c+r*.75,cy-r*.1);
+  cx.stroke();
+  
+  // glow when active
+  if(state.phase===PH.CHOICE||state.phase===PH.DRAG||state.choice.length>0){
+    const g=cx.createRadialGradient(c,cy+r*.2,4,c,cy+r*.2,r*1.1);
+    g.addColorStop(0,'rgba(255,235,150,.25)');
+    g.addColorStop(0.5,'rgba(255,200,80,.08)');
+    g.addColorStop(1,'rgba(255,200,80,0)');
+    cx.fillStyle=g;
+    cx.beginPath();
+    cx.moveTo(c-r*.75,cy-r*.1);
+    cx.bezierCurveTo(c-r*1.05,cy+r*.3,c-r*0.85,cy+r*.85,c,cy+r*.85);
+    cx.bezierCurveTo(c+r*0.85,cy+r*.85,c+r*1.05,cy+r*.3,c+r*.75,cy-r*.1);
+    cx.fill();
+  }
+  
+  // filament (zigzag inside bulb)
+  cx.strokeStyle=state.phase===PH.CHOICE?'#FFD86B':COL.faint;
+  cx.lineWidth=1;
+  // support wires from neck
+  cx.beginPath();
+  cx.moveTo(c-5,cy-r*.05);cx.lineTo(c-7,cy+r*.25);
+  cx.moveTo(c+5,cy-r*.05);cx.lineTo(c+7,cy+r*.25);
+  cx.stroke();
+  // filament zigzag
+  cx.beginPath();
+  cx.moveTo(c-7,cy+r*.25);
+  for(let i=0;i<7;i++){
+    cx.lineTo(c-7+i*(14/6),cy+r*.25+(i%2===0?-3:3));
+  }
+  cx.lineTo(c+7,cy+r*.25);
+  cx.stroke();
+}
+
+// ---------- BRAIN (smooth realistic oval, soft rounded edges) ----------
+function drawBrain(){
+  const c=L.BCX,top=L.BT,bot=L.BB,hw=L.BHW,h=bot-top;
+  const cy=(top+bot)/2;
+  cx.strokeStyle=COL.line;cx.lineWidth=1.6;
+  cx.lineJoin='round';
+  cx.lineCap='round';
+  
+  // EYES — top-down view: only a small portion of each eyeball protrudes
+  // through the front (top) of the brain. Drawn in same B&W line style as brain.
+  const eyeR=Math.min(hw*0.10,14);
+  // Eyes are EMBEDDED in the brain - center sits below the brain top edge
+  // so only the top sliver shows, like a half-buried sphere from above.
+  const eyeY=top+eyeR*0.65;  // most of the eye is inside the brain
+  const eyeLX=c-hw*0.32;
+  const eyeRX=c+hw*0.32;
+  // Very subtle gaze drift
+  const ttE=performance.now()*0.0008;
+  const pupilDX=Math.sin(ttE)*eyeR*0.12;
+  
+  // Each eye: a small arc + a curved pupil line, ONLY the top portion visible
+  function drawEyeDome(ex,ey){
+    // The visible portion is the top ~35% of the eye sphere
+    // Draw just the upper arc of the eye circle
+    cx.strokeStyle=COL.line;
+    cx.lineWidth=1.5;
+    cx.fillStyle='#000'; // matches background - eye interior is dark like brain
+    
+    // Top dome arc (from left horizon to right horizon, only top half)
+    cx.beginPath();
+    cx.arc(ex,ey,eyeR,Math.PI*1.15,Math.PI*1.85,false);
+    // close it with a flat bottom line where it meets the brain surface
+    cx.closePath();
+    cx.fill();
+    cx.stroke();
+    
+    // Small pupil dot at center top - represents gaze
+    cx.fillStyle=COL.line;
+    cx.beginPath();
+    cx.arc(ex+pupilDX,ey-eyeR*0.45,eyeR*0.18,0,Math.PI*2);
+    cx.fill();
+    
+    // Curved "iris ring" - just a faint arc indicating the iris boundary
+    cx.strokeStyle='rgba(255,255,255,.40)';
+    cx.lineWidth=0.8;
+    cx.beginPath();
+    cx.arc(ex,ey-eyeR*0.45,eyeR*0.42,Math.PI*1.1,Math.PI*1.9,false);
+    cx.stroke();
+  }
+  drawEyeDome(eyeLX,eyeY);
+  drawEyeDome(eyeRX,eyeY);
+  
+  // Brain outline
+  cx.strokeStyle=COL.line;cx.lineWidth=1.6;
+  cx.beginPath();
+  cx.ellipse(c,cy,hw,h*0.50,0,0,Math.PI*2);
+  cx.stroke();
+  
+  // Central fissure - subtle wavy line down the middle
+  cx.strokeStyle='rgba(255,255,255,.45)';
+  cx.lineWidth=1.4;
+  cx.beginPath();
+  cx.moveTo(c,top+10);
+  for(let yy=top+10;yy<bot-12;yy+=4){
+    const wob=Math.sin(yy*.06)*2;
+    cx.lineTo(c+wob,yy);
+  }
+  cx.stroke();
+  
+  // Soft inner gyri lines — gentle curves following oval contour
+  cx.strokeStyle='rgba(255,255,255,.18)';
+  cx.lineWidth=1;
+  const numRows=8;
+  for(let row=0;row<numRows;row++){
+    const t=row/(numRows-1);
+    const yy=top+h*0.15+t*(h*0.70);
+    const dy=yy-cy;
+    const xMax=Math.sqrt(Math.max(0,1-(dy*dy)/(h*0.5*h*0.5)))*hw;
+    // Left side gyri row
+    cx.beginPath();
+    for(let xx=c-xMax+10;xx<=c-6;xx+=3){
+      const wob=Math.sin(xx*0.18+row*0.7)*2.5;
+      if(xx===c-xMax+10)cx.moveTo(xx,yy+wob);
+      else cx.lineTo(xx,yy+wob);
+    }
+    cx.stroke();
+    // Right side gyri row
+    cx.beginPath();
+    for(let xx=c+6;xx<=c+xMax-10;xx+=3){
+      const wob=Math.sin(xx*0.18+row*0.7+1.5)*2.5;
+      if(xx===c+6)cx.moveTo(xx,yy+wob);
+      else cx.lineTo(xx,yy+wob);
+    }
+    cx.stroke();
+  }
+  
+  // WATER LEVEL inside brain - clipped to the oval
+  const totalWater=state.hitWater+state.missWater*0.4;
+  if(totalWater>0){
+    const wLevel=Math.min(1,totalWater);
+    const wy=bot-wLevel*(h-15);
+    cx.save();
+    cx.beginPath();
+    cx.ellipse(c,cy,hw,h*0.50,0,0,Math.PI*2);
+    cx.clip();
+    cx.fillStyle='rgba(79,195,247,.22)';
+    cx.fillRect(c-hw-20,wy,hw*2+40,bot-wy+20);
+    cx.strokeStyle=COL.water;cx.lineWidth=1.2;
+    cx.beginPath();
+    const tt=performance.now()*.003;
+    for(let xx=c-hw-20;xx<=c+hw+20;xx+=3){
+      const yy=wy+Math.sin((xx+tt*60)*.06)*2;
+      xx===c-hw-20?cx.moveTo(xx,yy):cx.lineTo(xx,yy);
+    }
+    cx.stroke();
+    cx.restore();
+  }
+}
+
+// ---------- Draw words in transit ----------
+function drawFalling(){
+  cx.textAlign='center';
+  state.falling.forEach(f=>{
+    cx.fillStyle=f.kind==='pos'?COL.water:'#fff';
+    cx.font='500 10px monospace';
+    cx.shadowColor=f.kind==='pos'?COL.water:'rgba(255,255,255,.5)';
+    cx.shadowBlur=8;
+    const lines=wrapWord(f.word.toUpperCase(),14);
+    const lineH=11;
+    const startY=f.y-(lines.length-1)*lineH/2;
+    lines.forEach((ln,i)=>{
+      cx.fillText(ln,f.x,startY+i*lineH);
+    });
+    cx.shadowBlur=0;
+  });
+}
+function drawChoice(){
+  if(state.phase!==PH.CHOICE)return;
+  const cy=L.BY;
+  cx.textAlign='center';
+  state.choice.forEach(c=>{
+    cx.globalAlpha=1-c.vanish;
+    cx.save();cx.translate(c.x,cy+L.BR*.3);
+    const br=1+Math.sin(performance.now()*.003+c.x)*.05;
+    cx.scale(br,br);
+    cx.fillStyle=c.kind==='pos'?COL.water:'#fff';
+    cx.font='500 10px monospace';
+    cx.shadowColor=c.kind==='pos'?COL.water:'rgba(255,255,255,.7)';
+    cx.shadowBlur=10;
+    const lines=wrapWord(c.word.toUpperCase(),14);
+    const lineH=12;
+    const startY=-(lines.length-1)*lineH/2+4;
+    lines.forEach((ln,i)=>{
+      cx.fillText(ln,0,startY+i*lineH);
+    });
+    cx.shadowBlur=0;
+    cx.restore();cx.globalAlpha=1;
+  });
+  cx.fillStyle=COL.dim;cx.font='300 8px monospace';
+  cx.fillText('tap one · then drag into brain',W/2,cy+L.BR*.3-30);
+}
+function drawDragWord(){
+  if(state.phase!==PH.DRAG||!state.drag)return;
+  const d=state.drag;
+  cx.textAlign='center';
+  cx.fillStyle=d.kind==='pos'?COL.water:'#fff';
+  cx.font='500 11px monospace';
+  cx.shadowColor=d.kind==='pos'?COL.water:'rgba(255,255,255,.7)';
+  cx.shadowBlur=12;
+  const lines=wrapWord(d.word.toUpperCase(),14);
+  const lineH=13;
+  const startY=d.y-(lines.length-1)*lineH/2;
+  lines.forEach((ln,i)=>{
+    cx.fillText(ln,d.x,startY+i*lineH);
+  });
+  cx.shadowBlur=0;
+  cx.strokeStyle='rgba(255,255,255,.15)';
+  cx.lineWidth=1;
+  cx.setLineDash([2,3]);
+  cx.beginPath();cx.moveTo(W/2,L.BY+L.BR*.4);cx.lineTo(d.x,d.y);cx.stroke();
+  cx.setLineDash([]);
+}
+function drawShapes(){
+  state.shapes.forEach(s=>{
+    if(s.dead)return;
+    s.def.draw(s.body);
+    // crack overlay
+    if(s.kind==='neg'&&s.hits>0){
+      cx.save();
+      cx.translate(s.body.position.x,s.body.position.y);
+      cx.rotate(s.body.angle);
+      cx.strokeStyle='rgba(255,255,255,.55)';
+      cx.lineWidth=1;
+      const p=s.hits/3;
+      const n=2+Math.floor(p*4);
+      for(let i=0;i<n;i++){
+        const a=(i/n)*Math.PI*2+p*1.5;
+        cx.beginPath();cx.moveTo(0,0);
+        let xx=0,yy=0;
+        for(let st=0;st<3;st++){
+          xx+=Math.cos(a+st*.5)*(4+p*8);
+          yy+=Math.sin(a+st*.5)*(4+p*8);
+          cx.lineTo(xx,yy);
+        }
+        cx.stroke();
+      }
+      cx.restore();
+    }
+  });
+}
+function drawFx(){
+  state.fx.forEach(e=>{
+    if(e.type==='burst'){
+      const a=Math.max(0,e.life/600);
+      cx.fillStyle=e.c;cx.globalAlpha=a;
+      cx.beginPath();cx.arc(e.x,e.y,1.4,0,Math.PI*2);cx.fill();
+    }else if(e.type==='wave'){
+      const a=Math.max(0,e.life/(e.small?400:500));
+      cx.strokeStyle=e.c;cx.globalAlpha=a*0.8;cx.lineWidth=1.2;
+      cx.beginPath();cx.arc(e.x,e.y,e.r,0,Math.PI*2);cx.stroke();
+      cx.beginPath();cx.arc(e.x,e.y,e.r*0.6,0,Math.PI*2);cx.stroke();
+    }
+  });
+  cx.globalAlpha=1;
+}
+
+// ---------- Main loop ----------
+let lastT=performance.now();
+function loop(now){
+  const dt=Math.min(50,now-lastT);lastT=now;
+  // Scroll momentum
+  if(!scrollDrag&&!state.drag){
+    cam.y+=cam.vy*(dt/16.67);
+    cam.vy*=0.92;
+    if(Math.abs(cam.vy)<0.1)cam.vy=0;
+    clampCam();
+  }
+  if(state.phase!==PH.INTRO&&state.phase!==PH.FULL){
+    Engine.update(eng,dt);
+    tickForces(dt);
+    tickPhase(dt);
+    tickFx(dt);
+  }
+  bg();
+  cx.save();cx.translate(0,-cam.y);
+  if(state.phase!==PH.INTRO){
+    drawHousing();
+    drawFalling();
+    drawBulb();
+    drawChoice();
+    drawShapes();
+    drawBrain();
+    drawDragWord();
+    drawFx();
+  }
+  cx.restore();
+  requestAnimationFrame(loop);
+}
+
+// ---------- Input ----------
+let scrollDrag=null;
+function pos(e){
+  const r=cv.getBoundingClientRect();
+  const t=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;
+  return{x:t.clientX-r.left,y:t.clientY-r.top};
+}
+
+function onDown(e){
+  if(state.phase===PH.INTRO||state.phase===PH.FULL)return;
+  e.preventDefault();
+  const p=pos(e);
+  
+  // If in CHOICE, check if a word was tapped to start dragging
+  if(state.phase===PH.CHOICE){
+    const wy=p.y+cam.y;
+    let picked=null;
+    state.choice.forEach(c=>{
+      const cyPos=L.BY+L.BR*.3;
+      if(Math.abs(p.x-c.x)<80&&Math.abs(wy-cyPos)<25)picked=c;
+    });
+    if(picked){
+      // Vanish the other, start drag
+      state.choice.forEach(c=>{if(c!==picked)c.vanish=1;});
+      state.drag={
+        word:picked.word,kind:picked.kind,
+        x:picked.x,y:L.BY+L.BR*.3,
+        vx:0,vy:0,
+        px:p.x,py:p.y
+      };
+      state.choice=[];
+      state.phase=PH.DRAG;
+      updHUD();
+      return;
+    }
+  }
+  // Otherwise scroll
+  scrollDrag={x:p.x,y:p.y,sx:p.x,sy:p.y,t:performance.now(),lastY:p.y,lastT:performance.now()};
+  cam.vy=0;
+}
+
+function onMove(e){
+  if(state.phase===PH.INTRO||state.phase===PH.FULL)return;
+  
+  if(state.drag){
+    e.preventDefault();
+    const p=pos(e);
+    const wy=p.y+cam.y;
+    // Word follows finger (in world coords)
+    state.drag.vx=(p.x-state.drag.px)*0.5;
+    state.drag.vy=(p.y-state.drag.py)*0.5;
+    state.drag.x=p.x;
+    state.drag.y=wy;
+    state.drag.px=p.x;
+    state.drag.py=p.y;
+    return;
+  }
+  
+  if(scrollDrag){
+    e.preventDefault();
+    const p=pos(e);
+    cam.y+=(scrollDrag.y-p.y);
+    clampCam();
+    const nowT=performance.now();
+    if(nowT-scrollDrag.lastT>0){
+      cam.vy=(scrollDrag.lastY-p.y)/(nowT-scrollDrag.lastT)*16;
+    }
+    scrollDrag.lastY=p.y;scrollDrag.lastT=nowT;
+    scrollDrag.x=p.x;scrollDrag.y=p.y;
+  }
+}
+
+function onUp(e){
+  if(state.phase===PH.INTRO||state.phase===PH.FULL)return;
+  e.preventDefault();
+  
+  if(state.drag){
+    const d=state.drag;
+    // Normal spawn at drop position - no resizing
+    spawnShape(d.word,d.x,d.y,d.vx,d.vy);
+    state.drag=null;
+    state.phase=PH.SETTLE;state.t=0;
+    updHUD();
+    return;
+  }
+  
+  if(scrollDrag){
+    scrollDrag=null;
+  }
+}
+
+cv.addEventListener('mousedown',onDown,{passive:false});
+cv.addEventListener('mousemove',onMove,{passive:false});
+window.addEventListener('mouseup',onUp,{passive:false});
+cv.addEventListener('touchstart',onDown,{passive:false});
+cv.addEventListener('touchmove',onMove,{passive:false});
+window.addEventListener('touchend',onUp,{passive:false});
+window.addEventListener('touchcancel',onUp,{passive:false});
+
+// ---------- Brain full ----------
+function triggerFull(){
+  state.phase=PH.FULL;
+  // Save progress - flow state reached for this category
+  // (only when reaching by clearing, not by overflow)
+  if(state.flow>=1)markCategoryCleared(state.category);
+  const saying=SAYINGS[Math.floor(Math.random()*SAYINGS.length)];
+  const el=document.getElementById('saying');
+  el.textContent=saying;
+  // restart animation
+  el.style.animation='none';void el.offsetWidth;el.style.animation='';
+  document.getElementById('over').classList.add('show');
+  // Cycle 2 more sayings then close
+  setTimeout(()=>{
+    const s2=SAYINGS[Math.floor(Math.random()*SAYINGS.length)];
+    el.textContent=s2;
+    el.style.animation='none';void el.offsetWidth;el.style.animation='';
+  },1100);
+  setTimeout(()=>{
+    const s3=SAYINGS[Math.floor(Math.random()*SAYINGS.length)];
+    el.textContent=s3;
+    el.style.animation='none';void el.offsetWidth;el.style.animation='';
+  },2200);
+  // After 3s try to close, fall back to reset
+  setTimeout(()=>{
+    try{window.close();}catch(_){}
+    // If still here, show reset prompt
+  },3000);
+}
+
+document.getElementById('over').addEventListener('click',()=>{
+  // Reset full state
+  document.getElementById('over').classList.remove('show');
+  state.shapes.forEach(s=>{if(!s.dead)Composite.remove(eng.world,s.body);});
+  state.shapes=[];state.fx=[];state.flow=0;state.hitWater=0;state.missWater=0;
+  cam.y=0;cam.vy=0;
+  document.getElementById('intro').classList.remove('gone');
+  document.getElementById('menuBtn').classList.remove('show');
+  state.phase=PH.INTRO;
+  updHUD();
+});
+
+// ---------- Boot screen → Gallery wall ----------
+document.getElementById('initSyncBtn').addEventListener('click',()=>{
+  document.getElementById('bootScreen').classList.add('gone');
+  document.getElementById('intro').classList.remove('gone');
+  refreshIntroBadges();
+});
+
+// ---------- Gallery wall category selection ----------
+document.querySelectorAll('.gallery-frame[data-cat]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    state.category=btn.dataset.cat;
+    document.getElementById('intro').classList.add('gone');
+    document.getElementById('menuBtn').classList.add('show');
+    setTimeout(()=>{startRound();},400);
+  });
+});
+
+// ---------- Menu button (opens popup with options) ----------
+function returnHome(){
+  // Reset everything and show intro (gallery wall, not boot screen)
+  state.shapes.forEach(s=>{if(!s.dead)Composite.remove(eng.world,s.body);});
+  state.shapes=[];state.fx=[];state.flow=0;state.hitWater=0;state.missWater=0;
+  state.falling=[];state.choice=[];state.drag=null;state.housing=[];
+  cam.y=0;cam.vy=0;
+  state.phase=PH.INTRO;
+  document.getElementById('over').classList.remove('show');
+  document.getElementById('intro').classList.remove('gone');
+  document.getElementById('bootScreen').classList.add('gone');
+  document.getElementById('menuBtn').classList.remove('show');
+  document.getElementById('menuPopup').classList.remove('show');
+  refreshIntroBadges();
+  updHUD();
+}
+function restartCategory(){
+  // Empty the brain but keep the current category
+  state.shapes.forEach(s=>{if(!s.dead)Composite.remove(eng.world,s.body);});
+  state.shapes=[];state.fx=[];state.flow=0;state.hitWater=0;state.missWater=0;
+  state.falling=[];state.choice=[];state.drag=null;
+  cam.y=0;cam.vy=0;
+  document.getElementById('over').classList.remove('show');
+  document.getElementById('menuPopup').classList.remove('show');
+  startRound();
+}
+// Helper: attach handler to both tap (touchend) and click for reliable mobile + desktop
+function tapHandler(el,fn){
+  let touched=false;
+  el.addEventListener('touchstart',(e)=>{e.stopPropagation();},{passive:true});
+  el.addEventListener('touchend',(e)=>{
+    e.stopPropagation();e.preventDefault();
+    touched=true;
+    fn(e);
+    setTimeout(()=>{touched=false;},400);
+  },{passive:false});
+  el.addEventListener('click',(e)=>{
+    e.stopPropagation();
+    if(touched)return;
+    fn(e);
+  });
+}
+
+tapHandler(document.getElementById('menuBtn'),()=>{
+  document.getElementById('menuPopup').classList.add('show');
+});
+tapHandler(document.getElementById('goHomeBtn'),()=>{
+  returnHome();
+});
+tapHandler(document.getElementById('restartBtn'),()=>{
+  restartCategory();
+});
+tapHandler(document.getElementById('menuClose'),()=>{
+  document.getElementById('menuPopup').classList.remove('show');
+});
+document.getElementById('menuPopup').addEventListener('click',(e)=>{
+  if(e.target.id==='menuPopup'){
+    document.getElementById('menuPopup').classList.remove('show');
+  }
+});
+
+
+// ---------- Boot ----------
+addEventListener('resize',()=>{resize();updHUD();});
+addEventListener('orientationchange',()=>{resize();updHUD();});
+resize();
+updHUD();
+refreshIntroBadges();
+requestAnimationFrame(loop);
+</script>
+<script>
+// Register service worker for offline support (required for PWA installability)
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(err=>{
+      console.log('SW registration deferred:',err);
+    });
+  });
+}
+
+// PWA install prompt - capture and offer to user when appropriate
+let deferredInstallPrompt=null;
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();
+  deferredInstallPrompt=e;
+});
+
+// Prevent pinch-zoom and double-tap zoom on mobile (game is fixed-viewport)
+document.addEventListener('gesturestart',e=>e.preventDefault());
+document.addEventListener('gesturechange',e=>e.preventDefault());
+let lastTouchEnd=0;
+document.addEventListener('touchend',e=>{
+  const now=Date.now();
+  if(now-lastTouchEnd<=300)e.preventDefault();
+  lastTouchEnd=now;
+},{passive:false});
+
+// Prevent context menu (long-press) on game canvas for cleaner mobile UX
+document.addEventListener('contextmenu',e=>e.preventDefault());
+
+// Lock orientation to portrait if supported
+if(screen.orientation&&screen.orientation.lock){
+  screen.orientation.lock('portrait').catch(()=>{/* not all browsers allow */});
+}
+
+// Wake-lock to keep screen on during gameplay (useful for meditation sessions)
+let wakeLock=null;
+async function requestWakeLock(){
+  if('wakeLock' in navigator){
+    try{
+      wakeLock=await navigator.wakeLock.request('screen');
+    }catch(err){/* ignore */}
+  }
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'&&wakeLock===null){requestWakeLock();}
+});
+requestWakeLock();
+</script>
+
+</body>
+</html>

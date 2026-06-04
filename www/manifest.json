@@ -1,0 +1,39 @@
+{
+  "name": "Mind Real Estate",
+  "short_name": "Mind Real Estate",
+  "description": "A meditative habit visualizer. Choose mindful thoughts, watch negative habits stack, and clear them with positive ones to reach flow state.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "categories": ["health", "lifestyle", "productivity", "wellness"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    { "src": "icon-32.png",  "sizes": "32x32",   "type": "image/png" },
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-narrow.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Choose your domain"
+    },
+    {
+      "src": "screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Brain fills with habits"
+    }
+  ],
+  "prefer_related_applications": false
+}
