@@ -1,0 +1,60 @@
+{
+  "name": "mind-real-estate",
+  "version": "1.0.0",
+  "description": "A meditative habit visualizer. Train your mental real estate by choosing positive thoughts to clear negative ones in your brain.",
+  "private": true,
+  "scripts": {
+    "build": "echo 'Static site - www/ folder is the build output'",
+    "serve": "npx http-server www -p 8000 -c-1",
+    "cap:init": "npx cap init 'Mind Real Estate' 'com.mindrealestate.app' --web-dir www",
+    "cap:add:ios": "npx cap add ios",
+    "cap:add:android": "npx cap add android",
+    "cap:sync": "npx cap sync",
+    "cap:open:ios": "npx cap open ios",
+    "cap:open:android": "npx cap open android",
+    "cap:doctor": "npx cap doctor",
+    "ios": "npx cap sync ios && npx cap open ios",
+    "android": "npx cap sync android && npx cap open android",
+    "ios:release": "npx cap sync ios && npx cap run ios --target release",
+    "android:release": "npx cap sync android && cd android && ./gradlew bundleRelease"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/device": "^6.0.0",
+    "@capacitor/haptics": "^6.0.0",
+    "@capacitor/ios": "^6.0.0",
+    "@capacitor/keyboard": "^6.0.0",
+    "@capacitor/network": "^6.0.0",
+    "@capacitor/preferences": "^6.0.0",
+    "@capacitor/screen-orientation": "^6.0.0",
+    "@capacitor/share": "^6.0.0",
+    "@capacitor/splash-screen": "^6.0.0",
+    "@capacitor/status-bar": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/mind-real-estate.git"
+  },
+  "keywords": [
+    "mindfulness",
+    "habits",
+    "meditation",
+    "mental-health",
+    "wellness",
+    "capacitor",
+    "ios",
+    "android",
+    "pwa"
+  ],
+  "author": "Mind Real Estate",
+  "license": "UNLICENSED"
+}
